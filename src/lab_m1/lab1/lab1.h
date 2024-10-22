@@ -28,6 +28,8 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         // TODO(student): Class variables go here
-
+        std::string currentMesh;
+        float x, y, z, scale;
+        float red, green, blue;
     };
 }   // namespace m1
