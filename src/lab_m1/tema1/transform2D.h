@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glm/matrix.hpp"
 #include "utils/glm_utils.h"
 
 
@@ -39,5 +40,13 @@ namespace transform2D
                           0, 0, 1)
                 );
 
+    }
+
+    inline glm::mat3 Shear(float Ax, float Ay, float Bx, float By) {
+        return glm::transpose(
+                glm::mat3(1, 0, 0,
+                          ((By - Ay) / (Bx - Ax)), 1, 0,
+                          0, 0, 1)
+                );
     }
 }   // namespace transform2D

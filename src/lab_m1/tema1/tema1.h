@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/simple_scene.h"
+#include <vector>
 
 
 namespace m1
@@ -40,5 +41,6 @@ namespace m1
 
         float carX, carY;
         float wheelRot;
+        std::vector<float> height_map;
     };
 }   // namespace m1

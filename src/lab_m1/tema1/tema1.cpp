@@ -1,11 +1,14 @@
 #include "lab_m1/tema1/tema1.h"
 
+#include <algorithm>
+#include <cmath>
 #include <vector>
 #include <iostream>
 
 #include "glm/fwd.hpp"
 #include "lab_m1/tema1/transform2D.h"
 #include "lab_m1/tema1/object2D.h"
+#include "utils/gl_utils.h"
 
 using namespace std;
 using namespace m1;
@@ -16,10 +19,19 @@ using namespace m1;
  *  and the order in which they are called, see `world.cpp`.
  */
 
+std::vector<float> gen_heights(int length) {
+    std::vector<float> height_map(length);
+    for (int x = 0; x < length; x++) {
+        height_map[x] = 50 * glm::sin(0.1 * x) + 50 * glm::sin(0.2 * x) + 75 * glm::sin(0.4 * x) + 200;
+    }
+    return height_map;
+}
 
 Tema1::Tema1()
 {
     unscale = false;
+    glm::ivec2 resolution = window->GetResolution();
+    height_map = gen_heights(resolution.x / 10 + 1);
 }
 
 
@@ -39,7 +51,7 @@ void Tema1::Init()
     GetCameraInput()->SetActive(false);
 
     glm::vec3 corner = glm::vec3(0, 0, 0);
-    float squareSide = 100;
+    float squareSide = 1;
 
     // TODO(student): Compute coordinates of a square's center, and store
     // then in the `cx` and `cy` class variables (see the header). Use
@@ -60,7 +72,7 @@ void Tema1::Init()
     // Initialize angularStep
     angularStep = 0.5;
 
-    Mesh* square1 = object2D::CreateCeva("square1", corner, squareSide, glm::vec3(1, 0, 0), true);
+    Mesh* square1 = object2D::CreateCeva("square1", corner, squareSide, glm::vec3(1, 0.5, 0), true);
     AddMeshToList(square1);
 
     Mesh* square2 = object2D::CreateCeva("square2", corner, squareSide, glm::vec3(0, 1, 0));
@@ -97,61 +109,53 @@ void Tema1::FrameStart()
 
 void Tema1::Update(float deltaTimeSeconds)
 {
-    // TODO(student): Update steps for translation, rotation and scale,
-    // in order to create animations. Use the class variables in the
-    // class header, and if you need more of them to complete the task,
-    // add them over there!
-
-    translateX += deltaTimeSeconds * 100;
-    translateY += deltaTimeSeconds * 100;
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(translateX, translateY);
-    // TODO(student): Create animations by multiplying the current
-    // transform matrix with the matrices you just implemented.
-    // Remember, the last matrix in the chain will take effect first!
-
-    // scaleX += deltaTimeSeconds * 100;
-    // scaleY += deltaTimeSeconds * 100;
-
-    RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
-
-    scaleX += 0.1;
-    scaleY += 0.1;
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(400 + cx, 250 + cy) * transform2D::Scale(scaleX, scaleY) * transform2D::Translate(-cx, -cy);
-    // TODO(student): Create animations by multiplying the current
-    // transform matrix with the matrices you just implemented
-    // Remember, the last matrix in the chain will take effect first!
-
-    RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
-
-    angularStep += 0.1;
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(650 + cx, 250 + cy) * transform2D::Rotate(angularStep) * transform2D::Translate(-cx, -cy);
-    // TODO(student): Create animations by multiplying the current
-    // transform matrix with the matrices you just implemented
-    // Remember, the last matrix in the chain will take effect first!
-
-    RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(carX + 200, carY + 200);
-    RenderMesh2D(meshes["top"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(carX + 250, carY + 150) * transform2D::Scale(3, 1) * transform2D::Translate(-cx, -cy);
-    RenderMesh2D(meshes["mid"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(carX + 150, carY + 50) * transform2D::Rotate(wheelRot) * transform2D::Translate(-cx, -cy);
-    RenderMesh2D(meshes["wheelL"], shaders["VertexColor"], modelMatrix);
-    
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(carX + 350, carY + 50) * transform2D::Rotate(wheelRot) * transform2D::Translate(-cx, -cy);
-    RenderMesh2D(meshes["wheelR"], shaders["VertexColor"], modelMatrix);
+    glClearColor(135.0 / 255, 206.0 / 255, 235.0 / 255, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // translateX += deltaTimeSeconds * 100;
+    // translateY += deltaTimeSeconds * 100;
+    //
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(translateX, translateY);
+    // RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+    //
+    // scaleX += 0.1;
+    // scaleY += 0.1;
+    //
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(400 + cx, 250 + cy) * transform2D::Scale(scaleX, scaleY) * transform2D::Translate(-cx, -cy);
+    //
+    // RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
+    //
+    // angularStep += 0.1;
+    //
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(650 + cx, 250 + cy) * transform2D::Rotate(angularStep) * transform2D::Shear(0, 0, 5, 2) * transform2D::Translate(-cx, -cy);
+    //
+    // RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
+    //
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(carX + 200, carY + 200);
+    // RenderMesh2D(meshes["top"], shaders["VertexColor"], modelMatrix);
+    //
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(carX + 250, carY + 150) * transform2D::Scale(3, 1) * transform2D::Translate(-cx, -cy);
+    // RenderMesh2D(meshes["mid"], shaders["VertexColor"], modelMatrix);
+    //
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(carX + 150, carY + 50) * transform2D::Rotate(wheelRot) * transform2D::Translate(-cx, -cy);
+    // RenderMesh2D(meshes["wheelL"], shaders["VertexColor"], modelMatrix);
+    // 
+    // modelMatrix = glm::mat3(1);
+    // modelMatrix *= transform2D::Translate(carX + 350, carY + 50) * transform2D::Rotate(wheelRot) * transform2D::Translate(-cx, -cy);
+    // RenderMesh2D(meshes["wheelR"], shaders["VertexColor"], modelMatrix);
+    for (int index = 0; index < height_map.size() - 1; index++) {
+        modelMatrix = glm::mat3(1); 
+        // modelMatrix *= transform2D::Translate((index) * 10, height_map[index]) * transform2D::Shear(index * 10, height_map[index], (index + 1) * 10, height_map[index + 1]) * transform2D::Scale(10, std::max(height_map[index], height_map[index + 1]));
+        modelMatrix *= transform2D::Translate((index) * 10, height_map[index]);
+        modelMatrix *= transform2D::Shear(index * 10, height_map[index], (index + 1) * 10, height_map[index + 1]);
+        modelMatrix *= transform2D::Scale(10, std::max(height_map[index], height_map[index + 1]));
+        RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+    }
 }
 
 
