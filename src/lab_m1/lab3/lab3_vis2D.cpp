@@ -166,9 +166,30 @@ void Lab3_Vis2D::DrawScene(glm::mat3 visMatrix)
 
 void Lab3_Vis2D::OnInputUpdate(float deltaTime, int mods)
 {
+    float speed = 3;
     // TODO(student): Move the logic window with W, A, S, D (up, left, down, right)
+    if (window->KeyHold(GLFW_KEY_W)) {
+        logicSpace.y += speed * deltaTime; 
+    }
+    if (window->KeyHold(GLFW_KEY_S)) {
+        logicSpace.y -= speed * deltaTime; 
+    }
+    if (window->KeyHold(GLFW_KEY_A)) {
+        logicSpace.x -= speed * deltaTime; 
+    }
+    if (window->KeyHold(GLFW_KEY_D)) {
+        logicSpace.x += speed * deltaTime; 
+    }
 
     // TODO(student): Zoom in and zoom out logic window with Z and X
+    if (window->KeyHold(GLFW_KEY_Z)) {
+        logicSpace.width -= speed * deltaTime; 
+        logicSpace.height -= speed * deltaTime; 
+    }
+    if (window->KeyHold(GLFW_KEY_X)) {
+        logicSpace.width += speed * deltaTime; 
+        logicSpace.height += speed * deltaTime; 
+    }
 
 }
 

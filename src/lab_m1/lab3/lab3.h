@@ -35,6 +35,10 @@ namespace m1
         float angularStep;
 
         // TODO(student): If you need any other class variables, define them here.
+        bool unscale;
+        bool getBack;
 
+        float carX, carY;
+        float wheelRot;
     };
 }   // namespace m1
