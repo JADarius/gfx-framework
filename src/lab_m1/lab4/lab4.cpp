@@ -97,6 +97,7 @@ void Lab4::Update(float deltaTimeSeconds)
     glViewport(miniViewportArea.x, miniViewportArea.y, miniViewportArea.width, miniViewportArea.height);
 
     // TODO(student): render the scene again, in the new viewport
+    RenderScene();
     DrawCoordinateSystem();
 }
 
@@ -113,8 +114,54 @@ void Lab4::FrameEnd()
 
 void Lab4::OnInputUpdate(float deltaTime, int mods)
 {
+    int speed = 2;
     // TODO(student): Add transformation logic
-
+    if (window->KeyHold(GLFW_KEY_A)) {
+        translateX += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_D)){
+        translateX -= speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_R)) {
+        translateY += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_F)){
+        translateY -= speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_S)) {
+        translateZ += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_W)){
+        translateZ -= speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_1)){
+        scaleX += speed * deltaTime;
+        scaleY += speed * deltaTime;
+        scaleZ += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_2)){
+        scaleX -= speed * deltaTime;
+        scaleY -= speed * deltaTime;
+        scaleZ -= speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_3)) {
+        angularStepOX += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_4)) {
+        angularStepOX -= speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_5)) {
+        angularStepOY += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_6)) {
+        angularStepOY -= speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_7)) {
+        angularStepOZ += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_8)) {
+        angularStepOZ -= speed * deltaTime;
+    }
 }
 
 
@@ -138,6 +185,27 @@ void Lab4::OnKeyPress(int key, int mods)
     }
     
     // TODO(student): Add viewport movement and scaling logic
+    int speed = 10;
+    if (window->KeyHold(GLFW_KEY_L)) {
+        miniViewportArea.x += speed;
+    }
+    if (window->KeyHold(GLFW_KEY_J)){
+        miniViewportArea.x -= speed;
+    }
+    if (window->KeyHold(GLFW_KEY_I)) {
+        miniViewportArea.y += speed;
+    }
+    if (window->KeyHold(GLFW_KEY_K)){
+        miniViewportArea.y -= speed;
+    }
+    if (window->KeyHold(GLFW_KEY_U)) {
+        miniViewportArea.width += speed;
+        miniViewportArea.height += speed;
+    }
+    if (window->KeyHold(GLFW_KEY_O)){
+        miniViewportArea.width -= speed;
+        miniViewportArea.height -= speed;
+    }
 }
 
 
