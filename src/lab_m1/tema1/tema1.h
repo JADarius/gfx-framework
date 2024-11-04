@@ -35,12 +35,10 @@ namespace m1
         float scaleX, scaleY;
         float angularStep;
 
-        // TODO(student): If you need any other class variables, define them here.
-        bool unscale;
-        bool getBack;
-
         float carX, carY;
         float wheelRot;
         std::vector<float> height_map;
+
+        float tankX;
     };
 }   // namespace m1
