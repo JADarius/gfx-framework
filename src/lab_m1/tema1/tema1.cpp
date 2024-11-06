@@ -32,6 +32,7 @@ Tema1::Tema1()
     glm::ivec2 resolution = window->GetResolution();
     height_map = gen_heights(resolution.x / 10 + 1);
     tankX = 302;
+    tankSize = 5;
 }
 
 
@@ -69,11 +70,11 @@ void Tema1::Init()
 
     Mesh* square1 = object2D::CreateCeva("square", corner, squareSide, glm::vec3(225.0 / 255, 235.0 / 255, 33.0 / 255), true);
     AddMeshToList(square1);
-    Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), 10);
+    Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
     AddMeshToList(firstBase);
-    Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 10);
+    Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), tankSize);
     AddMeshToList(secondBase);
-    Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 25);
+    Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 2.5 * tankSize);
     AddMeshToList(top);
 }
 
@@ -122,15 +123,15 @@ void Tema1::Update(float deltaTimeSeconds)
     RenderMesh2D(meshes["firstBase"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankX, tankY + 10);
+    modelMatrix *= transform2D::Translate(tankX, tankY);
     modelMatrix *= transform2D::Rotate(angle);
-    modelMatrix *= transform2D::Translate(0, -10);
+    modelMatrix *= transform2D::Translate(0, tankSize);
     RenderMesh2D(meshes["secondBase"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankX, tankY + 30);
+    modelMatrix *= transform2D::Translate(tankX, tankY);
     modelMatrix *= transform2D::Rotate(angle);
-    modelMatrix *= transform2D::Translate(0, -30);
+    modelMatrix *= transform2D::Translate(0, 3 * tankSize);
     RenderMesh2D(meshes["top"], shaders["VertexColor"], modelMatrix);
 }
 

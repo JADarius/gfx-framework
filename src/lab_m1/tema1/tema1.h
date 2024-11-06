@@ -40,5 +40,6 @@ namespace m1
         std::vector<float> height_map;
 
         float tankX;
+        float tankSize;
     };
 }   // namespace m1
