@@ -33,6 +33,7 @@ Tema1::Tema1()
     height_map = gen_heights(resolution.x / 10 + 1);
     tankX = 302;
     tankSize = 5;
+    turretAngle = 0;
 }
 
 
@@ -68,14 +69,16 @@ void Tema1::Init()
     // Initialize angularStep
     angularStep = 0.5;
 
-    Mesh* square1 = object2D::CreateCeva("square", corner, squareSide, glm::vec3(225.0 / 255, 235.0 / 255, 33.0 / 255), true);
-    AddMeshToList(square1);
+    Mesh* square = object2D::CreateCeva("square", corner, squareSide, glm::vec3(225.0 / 255, 235.0 / 255, 33.0 / 255), true);
+    AddMeshToList(square);
     Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
     AddMeshToList(firstBase);
     Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), tankSize);
     AddMeshToList(secondBase);
     Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 2.5 * tankSize);
     AddMeshToList(top);
+    Mesh *turret = object2D::CreateCeva("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
+    AddMeshToList(turret);
 }
 
 
@@ -133,6 +136,15 @@ void Tema1::Update(float deltaTimeSeconds)
     modelMatrix *= transform2D::Rotate(angle);
     modelMatrix *= transform2D::Translate(0, 3 * tankSize);
     RenderMesh2D(meshes["top"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = glm::mat3(1);
+    modelMatrix *= transform2D::Translate(tankX, tankY);
+    modelMatrix *= transform2D::Rotate(angle);
+    modelMatrix *= transform2D::Translate(0, 4.5 * tankSize - 2.5);
+    modelMatrix *= transform2D::Rotate(turretAngle);
+    modelMatrix *= transform2D::Translate(0, 2.5);
+    modelMatrix *= transform2D::Scale(1.4 * tankSize, 1);
+    RenderMesh2D(meshes["turret"], shaders["VertexColor"], modelMatrix);
 }
 
 
@@ -155,6 +167,12 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
     }
     if (window->KeyHold(GLFW_KEY_D)) {
         tankX += speed * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_W)) {
+        turretAngle += 1 * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_S)) {
+        turretAngle -= 1 * deltaTime;
     }
 }
 

@@ -41,5 +41,6 @@ namespace m1
 
         float tankX;
         float tankSize;
+        float turretAngle;
     };
 }   // namespace m1
