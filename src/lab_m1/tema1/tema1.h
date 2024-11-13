@@ -1,6 +1,8 @@
 #pragma once
 
 #include "components/simple_scene.h"
+#include "glm/fwd.hpp"
+#include "lab_m1/tema1/tank.h"
 #include <vector>
 
 
@@ -39,8 +41,15 @@ namespace m1
         float wheelRot;
         std::vector<float> height_map;
 
-        float tankX;
+        float tankX, tankY;
         float tankSize;
         float turretAngle;
+
+        bool fired_proj;
+        glm::vec2 proj_vec;
+        glm::vec2 proj_pos;
+        float angle;
+
+        Tank firstTank;
     };
 }   // namespace m1

@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 
+#include "glm/ext/scalar_constants.hpp"
 #include "glm/fwd.hpp"
 #include "lab_m1/tema1/transform2D.h"
 #include "lab_m1/tema1/object2D.h"
@@ -27,13 +28,14 @@ std::vector<float> gen_heights(int length) {
     return height_map;
 }
 
-Tema1::Tema1()
+Tema1::Tema1() : firstTank(Tank(501, 5, 0))
 {
     glm::ivec2 resolution = window->GetResolution();
     height_map = gen_heights(resolution.x / 10 + 1);
     tankX = 302;
     tankSize = 5;
     turretAngle = 0;
+    fired_proj = false;
 }
 
 
@@ -71,14 +73,16 @@ void Tema1::Init()
 
     Mesh* square = object2D::CreateCeva("square", corner, squareSide, glm::vec3(225.0 / 255, 235.0 / 255, 33.0 / 255), true);
     AddMeshToList(square);
-    Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
-    AddMeshToList(firstBase);
-    Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), tankSize);
-    AddMeshToList(secondBase);
-    Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 2.5 * tankSize);
-    AddMeshToList(top);
-    Mesh *turret = object2D::CreateCeva("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
-    AddMeshToList(turret);
+    Mesh* proj = object2D::CreateCeva("proj", corner, 10, glm::vec3(0, 0, 0), true);
+    AddMeshToList(proj);
+    // Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
+    // AddMeshToList(firstBase);
+    // Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), tankSize);
+    // AddMeshToList(secondBase);
+    // Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 2.5 * tankSize);
+    // AddMeshToList(top);
+    // Mesh *turret = object2D::CreateCeva("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
+    // AddMeshToList(turret);
 }
 
 
@@ -110,41 +114,24 @@ void Tema1::Update(float deltaTimeSeconds)
 
     // Tank 
     // Calculate Y
-    float Ax = glm::ceil(tankX / 10) * 10; 
-    float Bx = glm::floor(tankX / 10) * 10; 
-    float t = (tankX - Ax) / (Bx - Ax);
-    float tankY = height_map[Ax / 10] + t * (height_map[Bx / 10] - height_map[Ax / 10]);
+    //
+    firstTank.updateTank(height_map);
 
-    // Calculate rotation
-    float Vx = Bx - Ax;
-    float Vy = height_map[Bx / 10] - height_map[Ax / 10];
-    float angle = glm::atan2(-Vy, -Vx);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankX, tankY);
-    modelMatrix *= transform2D::Rotate(angle);
-    RenderMesh2D(meshes["firstBase"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankX, tankY);
-    modelMatrix *= transform2D::Rotate(angle);
-    modelMatrix *= transform2D::Translate(0, tankSize);
-    RenderMesh2D(meshes["secondBase"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankX, tankY);
-    modelMatrix *= transform2D::Rotate(angle);
-    modelMatrix *= transform2D::Translate(0, 3 * tankSize);
-    RenderMesh2D(meshes["top"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankX, tankY);
-    modelMatrix *= transform2D::Rotate(angle);
-    modelMatrix *= transform2D::Translate(0, 4.5 * tankSize - 2.5);
-    modelMatrix *= transform2D::Rotate(turretAngle);
-    modelMatrix *= transform2D::Translate(0, 2.5);
-    modelMatrix *= transform2D::Scale(1.4 * tankSize, 1);
-    RenderMesh2D(meshes["turret"], shaders["VertexColor"], modelMatrix);
+    for (auto drawable : firstTank.getParts()) {
+        RenderMesh2D(drawable->getMesh(), shaders["VertexColor"], drawable->getModelMatrix());
+    }
+    
+    if (fired_proj) {
+        // std::cout << "Am tras";
+        // std::cout.flush();
+        modelMatrix = glm::mat3(1);
+        modelMatrix *= transform2D::Translate(proj_pos.x, proj_pos.y);
+        // modelMatrix *= transform2D::Translate(300, 500);
+        RenderMesh2D(meshes["proj"], shaders["VertexColor"], modelMatrix);
+        proj_pos.x += proj_vec.x * deltaTimeSeconds; 
+        proj_pos.y += proj_vec.y * deltaTimeSeconds; 
+        proj_vec.y -= 1000 * deltaTimeSeconds; 
+    }
 }
 
 
@@ -161,18 +148,32 @@ void Tema1::FrameEnd()
 
 void Tema1::OnInputUpdate(float deltaTime, int mods)
 {
+    glm::ivec2 resolution = window->GetResolution();
     float speed = 200;
     if (window->KeyHold(GLFW_KEY_A)) {
-        tankX -= speed * deltaTime;
+        firstTank.changeTankX(-speed * deltaTime);
     }
     if (window->KeyHold(GLFW_KEY_D)) {
-        tankX += speed * deltaTime;
+        firstTank.changeTankX(speed * deltaTime);
     }
     if (window->KeyHold(GLFW_KEY_W)) {
-        turretAngle += 1 * deltaTime;
+        firstTank.changeTurretAngle(2 * deltaTime);
+        // turretAngle += 1 * deltaTime;
+        // if (turretAngle > 3.14) {
+        //     turretAngle = 3.14;
+        // }
     }
     if (window->KeyHold(GLFW_KEY_S)) {
-        turretAngle -= 1 * deltaTime;
+        firstTank.changeTurretAngle(-2 * deltaTime);
+        // turretAngle -= 1 * deltaTime;
+        // if (turretAngle < 0) {
+        //     turretAngle = 0;
+        // }
+    }
+    if (window->KeyHold(GLFW_KEY_SPACE)) {
+        fired_proj = true;
+        proj_pos = glm::vec2(tankX, tankY + 35);
+        proj_vec = glm::vec2(glm::cos(angle + turretAngle) * 600, glm::sin(angle + turretAngle) * 600);
     }
 }
 
