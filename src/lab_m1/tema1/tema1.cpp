@@ -7,9 +7,11 @@
 
 #include "glm/ext/scalar_constants.hpp"
 #include "glm/fwd.hpp"
+#include "lab_m1/tema1/drawable.h"
 #include "lab_m1/tema1/transform2D.h"
 #include "lab_m1/tema1/object2D.h"
 #include "utils/gl_utils.h"
+#include "lab_m1/tema1/projectile.h"
 
 using namespace std;
 using namespace m1;
@@ -23,19 +25,16 @@ using namespace m1;
 std::vector<float> gen_heights(int length) {
     std::vector<float> height_map(length);
     for (int x = 0; x < length; x++) {
-        height_map[x] = 50 * glm::sin(0.1 * x) + 50 * glm::sin(0.2 * x) +  350;
+        height_map[x] = 50 * glm::sin(0.1 * x) + 50 * glm::sin(0.2 * x) + 350;
     }
     return height_map;
 }
 
-Tema1::Tema1() : firstTank(Tank(501, 5, 0))
+Tema1::Tema1() : firstTank(Tank(200.1, 5, 0)), secondTank(Tank(1000.1, 5, 3.14))
 {
     glm::ivec2 resolution = window->GetResolution();
     height_map = gen_heights(resolution.x / 10 + 1);
-    tankX = 302;
-    tankSize = 5;
-    turretAngle = 0;
-    fired_proj = false;
+    projectiles = std::vector<Projectile>();
 }
 
 
@@ -75,14 +74,6 @@ void Tema1::Init()
     AddMeshToList(square);
     Mesh* proj = object2D::CreateCeva("proj", corner, 10, glm::vec3(0, 0, 0), true);
     AddMeshToList(proj);
-    // Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
-    // AddMeshToList(firstBase);
-    // Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), tankSize);
-    // AddMeshToList(secondBase);
-    // Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 2.5 * tankSize);
-    // AddMeshToList(top);
-    // Mesh *turret = object2D::CreateCeva("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
-    // AddMeshToList(turret);
 }
 
 
@@ -112,26 +103,42 @@ void Tema1::Update(float deltaTimeSeconds)
         RenderMesh2D(meshes["square"], shaders["VertexColor"], modelMatrix);
     }
 
-    // Tank 
-    // Calculate Y
-    //
-    firstTank.updateTank(height_map);
 
-    for (auto drawable : firstTank.getParts()) {
-        RenderMesh2D(drawable->getMesh(), shaders["VertexColor"], drawable->getModelMatrix());
+    // projectiles
+    for (auto &proj : projectiles) {
+        if (!proj.isEnabled()) {
+            continue;
+        }
+        proj.update(deltaTimeSeconds);
+        if (proj.checkCollisionTank(firstTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize())) {
+            firstTank.hit();
+            proj.disable();
+        }
+        if (proj.checkCollisionTank(secondTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize())) {
+            secondTank.hit();
+            proj.disable();
+        }
+        Drawable* body = proj.getBody();
+        RenderMesh2D(body->getMesh(), shaders["VertexColor"], body->getModelMatrix());
+    }
+
+    // Tanks
+    if (firstTank.isAlive()) {
+        firstTank.updateTank(height_map, deltaTimeSeconds);
+
+        for (auto drawable : firstTank.getParts()) {
+            RenderMesh2D(drawable->getMesh(), shaders["VertexColor"], drawable->getModelMatrix());
+        }
+    }
+
+    if (secondTank.isAlive()) {
+        secondTank.updateTank(height_map, deltaTimeSeconds);
+
+        for (auto drawable : secondTank.getParts()) {
+            RenderMesh2D(drawable->getMesh(), shaders["VertexColor"], drawable->getModelMatrix());
+        }
     }
     
-    if (fired_proj) {
-        // std::cout << "Am tras";
-        // std::cout.flush();
-        modelMatrix = glm::mat3(1);
-        modelMatrix *= transform2D::Translate(proj_pos.x, proj_pos.y);
-        // modelMatrix *= transform2D::Translate(300, 500);
-        RenderMesh2D(meshes["proj"], shaders["VertexColor"], modelMatrix);
-        proj_pos.x += proj_vec.x * deltaTimeSeconds; 
-        proj_pos.y += proj_vec.y * deltaTimeSeconds; 
-        proj_vec.y -= 1000 * deltaTimeSeconds; 
-    }
 }
 
 
@@ -158,22 +165,21 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
     }
     if (window->KeyHold(GLFW_KEY_W)) {
         firstTank.changeTurretAngle(2 * deltaTime);
-        // turretAngle += 1 * deltaTime;
-        // if (turretAngle > 3.14) {
-        //     turretAngle = 3.14;
-        // }
     }
     if (window->KeyHold(GLFW_KEY_S)) {
         firstTank.changeTurretAngle(-2 * deltaTime);
-        // turretAngle -= 1 * deltaTime;
-        // if (turretAngle < 0) {
-        //     turretAngle = 0;
-        // }
     }
-    if (window->KeyHold(GLFW_KEY_SPACE)) {
-        fired_proj = true;
-        proj_pos = glm::vec2(tankX, tankY + 35);
-        proj_vec = glm::vec2(glm::cos(angle + turretAngle) * 600, glm::sin(angle + turretAngle) * 600);
+    if (window->KeyHold(GLFW_KEY_LEFT)) {
+        secondTank.changeTankX(-speed * deltaTime);
+    }
+    if (window->KeyHold(GLFW_KEY_RIGHT)) {
+        secondTank.changeTankX(speed * deltaTime);
+    }
+    if (window->KeyHold(GLFW_KEY_UP)) {
+        secondTank.changeTurretAngle(2 * deltaTime);
+    }
+    if (window->KeyHold(GLFW_KEY_DOWN)) {
+        secondTank.changeTurretAngle(-2 * deltaTime);
     }
 }
 
@@ -181,6 +187,12 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 void Tema1::OnKeyPress(int key, int mods)
 {
     // Add key press event
+    if (key == GLFW_KEY_SPACE && firstTank.isAlive()) {
+        projectiles.push_back(firstTank.fireProj());
+    }
+    if (key == GLFW_KEY_ENTER && secondTank.isAlive()) {
+        projectiles.push_back(secondTank.fireProj());
+    }
 }
 
 

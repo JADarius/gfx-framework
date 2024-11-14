@@ -2,9 +2,9 @@
 
 #include "components/simple_scene.h"
 #include "glm/fwd.hpp"
+#include "lab_m1/tema1/projectile.h"
 #include "lab_m1/tema1/tank.h"
 #include <vector>
-
 
 namespace m1
 {
@@ -45,11 +45,11 @@ namespace m1
         float tankSize;
         float turretAngle;
 
-        bool fired_proj;
-        glm::vec2 proj_vec;
-        glm::vec2 proj_pos;
         float angle;
 
         Tank firstTank;
+        Tank secondTank;
+
+        std::vector<Projectile> projectiles;
     };
 }   // namespace m1

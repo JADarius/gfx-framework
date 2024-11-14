@@ -1,5 +1,6 @@
 #include "object2D.h"
 
+#include <iostream>
 #include <vector>
 
 #include "core/engine.h"
@@ -95,51 +96,4 @@ Mesh* object2D::CreateTankTop(const std::string &name, glm::vec3 center, glm::ve
 
     top->InitFromData(vertices, indices);
     return top;
-}
-
-Mesh* object2D::CreateTank(const std::string &name, glm::vec3 center, glm::vec3 color, float length, float radius) {
-    // Bottom base
-    std::vector<VertexFormat> verticesBottom =
-    {
-        VertexFormat(center + glm::vec3(-4.5 * length, 0, 0), color),
-        VertexFormat(center + glm::vec3(-5 * length, length, 0), color),
-        VertexFormat(center + glm::vec3(5 * length, length, 0), color),
-        VertexFormat(center + glm::vec3(4.5 * length, 0, 0), color)
-    };
-
-    std::vector<unsigned int> indicesBottom = { 0, 1, 2, 3, 0, 2 };
-
-    center = center + glm::vec3(0, 10, 0);
-
-    // Top base
-    std::vector<VertexFormat> verticesTop =
-    {
-        VertexFormat(center + glm::vec3(-6.5 * length, 0, 0), color),
-        VertexFormat(center + glm::vec3(-5.5 * length, 2 * length, 0), color),
-        VertexFormat(center + glm::vec3(5.5 * length, 2 * length, 0), color),
-        VertexFormat(center + glm::vec3(6.5 * length, 0, 0), color)
-    };
-
-    std::vector<unsigned int> indicesTop = { 0, 1, 2, 3, 0, 2 };
-
-    std::vector<VertexFormat> verticesCircle =
-    {
-        VertexFormat(center, color)
-    };
-
-    float angleUnit = glm::radians(180.0) / 20.0;
-    for (int point = 0; point <= 20; point++) {
-        verticesCircle.push_back(
-                VertexFormat(center + glm::vec3(radius * glm::cos(point * angleUnit), radius * glm::sin(point * angleUnit), 0), color)
-                );
-    }
-
-    std::vector<unsigned int> indicesCircle;
-
-    for (int point = 1; point < 21; point++) {
-        indicesCircle.push_back(0); 
-        indicesCircle.push_back(point); 
-        indicesCircle.push_back(point + 1); 
-    }
-
 }

@@ -1,6 +1,7 @@
 #include "lab_m1/tema1/tank.h"
 #include "lab_m1/tema1/drawable.h"
 #include "lab_m1/tema1/object2D.h"
+#include "lab_m1/tema1/projectile.h"
 #include "lab_m1/tema1/transform2D.h"
 
 int firstBaseIndex = 0;
@@ -13,7 +14,9 @@ Tank::Tank(float tankX, float tankSize, float turretAngle) {
     this->tankX = tankX;
     this->tankSize = tankSize;
     this->turretAngle = turretAngle;
+    fired_proj = false;
     parts = std::vector<Drawable*>();
+    hitpoints = 50;
 
     Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
     parts.push_back(new Drawable(firstBase)); 
@@ -28,7 +31,7 @@ Tank::Tank(float tankX, float tankSize, float turretAngle) {
 Tank::~Tank() {
 }
 
-void Tank::updateTank(std::vector<float> &height_map) {
+void Tank::updateTank(std::vector<float> &height_map, float deltaTime) {
     // Calculate Y
     float Ax = glm::floor(tankX / 10) * 10; 
     float Bx = glm::ceil(tankX / 10) * 10; 
@@ -78,8 +81,38 @@ void Tank::changeTankX(float delta) {
 
 void Tank::changeTurretAngle(float delta) {
     turretAngle += delta;
+    if (turretAngle > 3.14) {
+        turretAngle = 3.14;
+    }
+    if (turretAngle < 0) {
+        turretAngle = 0;
+    }
 }
 
 float Tank::getTankX() {
     return tankX;
+}
+
+float Tank::getTankY() {
+    return tankY;
+}
+
+float Tank::getTankSize() {
+    return tankSize;
+}
+
+Projectile Tank::fireProj() {
+    fired_proj = true;
+    Mesh* proj = object2D::CreateCeva("proj", glm::vec3(0, 0, 0), 10, glm::vec3(0, 0, 0), true);
+    proj_pos = glm::vec2(tankX + 6 * tankSize * glm::cos(angle + turretAngle), tankY + 4.5 * tankSize + 6 * tankSize * glm::sin(angle + turretAngle));
+    proj_vec = glm::vec2(glm::cos(angle + turretAngle) * 600, glm::sin(angle + turretAngle) * 600);
+    return Projectile(proj, proj_vec, proj_pos);
+}
+
+void Tank::hit() {
+    hitpoints -= 10;
+}
+
+bool Tank::isAlive() {
+    return hitpoints > 0;
 }
