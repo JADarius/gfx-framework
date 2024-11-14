@@ -22,8 +22,9 @@ using namespace m1;
  *  and the order in which they are called, see `world.cpp`.
  */
 
-const int THRESHOLD = 5;
-const int EPSILON = 10;
+const float THRESHOLD = 7.5;
+const float EPSILON = 10;
+const float BLAST_RADIUS = 50;
 
 std::vector<float> gen_heights(int length) {
     std::vector<float> height_map(length);
@@ -113,11 +114,14 @@ void Tema1::Update(float deltaTimeSeconds)
             proj.disable();
         }
         if (proj.checkCollisionField(height_map)) {
-            std::cout << "HIT!\n";
             std::cout.flush();
             float projX = proj.getProjX() / 10;
             float projY = proj.getProjY();
-            height_map[projX] = 0;
+            for (int index = glm::floor(projX) - BLAST_RADIUS / 10; index <= glm::floor(projX) + BLAST_RADIUS / 10; index++) {
+                float x = index * 10;
+                float new_y = projY - glm::sqrt(BLAST_RADIUS * BLAST_RADIUS - (x - projX * 10) * (x - projX * 10));
+                height_map[index] = std::min(height_map[index], new_y);
+            }
             proj.disable();
         }
         Drawable* body = proj.getBody();
