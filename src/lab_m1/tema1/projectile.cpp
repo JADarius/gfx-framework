@@ -1,9 +1,12 @@
 #include "lab_m1/tema1/projectile.h"
 #include "lab_m1/tema1/drawable.h"
 #include "lab_m1/tema1/transform2D.h"
+#include "lab_m1/tema1/object2D.h"
 #include <iostream>
 
-Projectile::Projectile(Mesh* mesh, glm::vec2 proj_vec, glm::vec2 proj_pos) : proj_vec(proj_vec), proj_pos(proj_pos), body(new Drawable(mesh)) {
+Projectile::Projectile(glm::vec2 proj_vec, glm::vec2 proj_pos) : proj_vec(proj_vec), proj_pos(proj_pos) {
+    Mesh* proj = object2D::CreateProj("proj", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 5);
+    body = new Drawable(proj);
     enabled = true;
 }
 
@@ -24,7 +27,7 @@ Drawable* Projectile::getBody() {
 bool Projectile::checkCollisionTank(float tankX, float tankY, float tankSize) {
     return (proj_pos.x >= tankX - 6.5 * tankSize &&
             proj_pos.x <= tankX + 6.5 * tankSize) &&
-           (proj_pos.y >= tankY && proj_pos.y <= tankY + 3 * tankSize);
+           (proj_pos.y >= tankY && proj_pos.y <= tankY + 2.5 * tankSize);
 }
 
 bool Projectile::isEnabled() {

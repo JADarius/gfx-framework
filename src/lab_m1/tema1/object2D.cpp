@@ -97,3 +97,30 @@ Mesh* object2D::CreateTankTop(const std::string &name, glm::vec3 center, glm::ve
     top->InitFromData(vertices, indices);
     return top;
 }
+
+Mesh* object2D::CreateProj(const std::string &name, glm::vec3 center, glm::vec3 color, float radius) {
+    std::vector<VertexFormat> vertices =
+    {
+        VertexFormat(center, color)
+    };
+
+    float angleUnit = glm::radians(360.0) / 36.0;
+    for (int point = 0; point <= 36; point++) {
+        vertices.push_back(
+                VertexFormat(center + glm::vec3(radius * glm::cos(point * angleUnit), radius * glm::sin(point * angleUnit), 0), color)
+                );
+    }
+
+    std::vector<unsigned int> indices;
+
+    for (int point = 1; point < 37; point++) {
+        indices.push_back(0); 
+        indices.push_back(point); 
+        indices.push_back(point + 1); 
+    }
+
+    Mesh* proj = new Mesh(name);
+
+    proj->InitFromData(vertices, indices);
+    return proj;
+}

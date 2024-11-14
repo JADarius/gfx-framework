@@ -15,5 +15,5 @@ namespace object2D
     Mesh* CreateTankFirstBase(const std::string &name, glm::vec3 center, glm::vec3 color, float length);
     Mesh* CreateTankSecondBase(const std::string &name, glm::vec3 center, glm::vec3 color, float length);
     Mesh* CreateTankTop(const std::string &name, glm::vec3 center, glm::vec3 color, float radius);
-    Mesh* CreateTank(const std::string &name, glm::vec3 center, glm::vec3 color, float length, float radius);
+    Mesh* CreateProj(const std::string &name, glm::vec3 center, glm::vec3 color, float radius);
 }

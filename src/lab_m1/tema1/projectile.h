@@ -6,7 +6,7 @@
 class Projectile
 {
     public:
-        Projectile(Mesh* mesh, glm::vec2 proj_vec, glm::vec2 proj_pos);
+        Projectile(glm::vec2 proj_vec, glm::vec2 proj_pos);
         ~Projectile();
 
         void update(float deltaTime);

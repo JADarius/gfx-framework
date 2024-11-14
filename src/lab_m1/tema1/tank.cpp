@@ -8,9 +8,10 @@ int firstBaseIndex = 0;
 int secondBaseIndex = 1;
 int topIndex = 2;
 int turretIndex = 3;
-int projIndex = 4;
+int healthBarIndex = 4;
+int healthBarProgressIndex = 5;
 
-Tank::Tank(float tankX, float tankSize, float turretAngle) {
+Tank::Tank(float tankX, float tankSize, float turretAngle, glm::vec3 color) {
     this->tankX = tankX;
     this->tankSize = tankSize;
     this->turretAngle = turretAngle;
@@ -20,12 +21,16 @@ Tank::Tank(float tankX, float tankSize, float turretAngle) {
 
     Mesh* firstBase = object2D::CreateTankFirstBase("firstBase", glm::vec3(0, 0, 0), glm::vec3(116.0 / 255, 100.0 / 255, 78.0 / 255), tankSize);
     parts.push_back(new Drawable(firstBase)); 
-    Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), tankSize);
+    Mesh* secondBase = object2D::CreateTankSecondBase("secondBase", glm::vec3(0, 0, 0), color, tankSize);
     parts.push_back(new Drawable(secondBase)); 
-    Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), glm::vec3(204.0 / 255, 175.0 / 255, 136.0 / 255), 2.5 * tankSize);
+    Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), color, 2.5 * tankSize);
     parts.push_back(new Drawable(top)); 
     Mesh *turret = object2D::CreateCeva("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
     parts.push_back(new Drawable(turret)); 
+    Mesh *healthBar = object2D::CreateCeva("healthBar", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), false);
+    parts.push_back(new Drawable(healthBar));
+    Mesh *healthBarProgress = object2D::CreateCeva("healthBarProgress", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
+    parts.push_back(new Drawable(healthBarProgress));
 }
 
 Tank::~Tank() {
@@ -69,6 +74,16 @@ void Tank::updateTank(std::vector<float> &height_map, float deltaTime) {
     modelMatrix *= transform2D::Translate(0, 2.5);
     modelMatrix *= transform2D::Scale(1.4 * tankSize, 1);
     parts[turretIndex]->setModelMatrix(modelMatrix);
+
+    modelMatrix = glm::mat3(1);
+    modelMatrix *= transform2D::Translate(tankX - 25, tankY + 70);
+    modelMatrix *= transform2D::Scale(50, 10);
+    parts[healthBarIndex]->setModelMatrix(modelMatrix);
+
+    modelMatrix = glm::mat3(1);
+    modelMatrix *= transform2D::Translate(tankX - 25, tankY + 70);
+    modelMatrix *= transform2D::Scale(hitpoints, 10);
+    parts[healthBarProgressIndex]->setModelMatrix(modelMatrix);
 }
 
 std::vector<Drawable*> Tank::getParts() {
@@ -103,10 +118,9 @@ float Tank::getTankSize() {
 
 Projectile Tank::fireProj() {
     fired_proj = true;
-    Mesh* proj = object2D::CreateCeva("proj", glm::vec3(0, 0, 0), 10, glm::vec3(0, 0, 0), true);
-    proj_pos = glm::vec2(tankX + 6 * tankSize * glm::cos(angle + turretAngle), tankY + 4.5 * tankSize + 6 * tankSize * glm::sin(angle + turretAngle));
+    proj_pos = glm::vec2(tankX + 5 * tankSize * glm::cos(angle + turretAngle), tankY + 4 * tankSize + 5 * tankSize * glm::sin(angle + turretAngle));
     proj_vec = glm::vec2(glm::cos(angle + turretAngle) * 600, glm::sin(angle + turretAngle) * 600);
-    return Projectile(proj, proj_vec, proj_pos);
+    return Projectile(proj_vec, proj_pos);
 }
 
 void Tank::hit() {

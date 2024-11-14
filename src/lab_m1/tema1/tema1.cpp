@@ -30,7 +30,7 @@ std::vector<float> gen_heights(int length) {
     return height_map;
 }
 
-Tema1::Tema1() : firstTank(Tank(200.1, 5, 0)), secondTank(Tank(1000.1, 5, 3.14))
+Tema1::Tema1() : firstTank(Tank(200.1, 5, 0, glm::vec3(0, 0, 1))), secondTank(Tank(1000.1, 5, 3.14, glm::vec3(1, 0, 0)))
 {
     glm::ivec2 resolution = window->GetResolution();
     height_map = gen_heights(resolution.x / 10 + 1);

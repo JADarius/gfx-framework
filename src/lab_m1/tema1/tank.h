@@ -10,7 +10,7 @@
 class Tank
 {
     public:
-        Tank(float tankX, float tankSize, float turretAngle);
+        Tank(float tankX, float tankSize, float turretAngle, glm::vec3 color);
         ~Tank();
 
         void updateTank(std::vector<float> &height_map, float deltaTime);
