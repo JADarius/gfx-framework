@@ -12,8 +12,11 @@ class Projectile
         void update(float deltaTime);
         Drawable* getBody();
         bool checkCollisionTank(float tankX, float tankY, float tankSize);
+        bool checkCollisionField(std::vector<float> &height_map);
         bool isEnabled();
         void disable();
+        float getProjX();
+        float getProjY();
 
     private:
         glm::vec2 proj_vec;

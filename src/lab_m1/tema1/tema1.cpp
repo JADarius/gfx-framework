@@ -22,6 +22,9 @@ using namespace m1;
  *  and the order in which they are called, see `world.cpp`.
  */
 
+const int THRESHOLD = 5;
+const int EPSILON = 10;
+
 std::vector<float> gen_heights(int length) {
     std::vector<float> height_map(length);
     for (int x = 0; x < length; x++) {
@@ -94,15 +97,6 @@ void Tema1::Update(float deltaTimeSeconds)
     glClearColor(135.0 / 255, 206.0 / 255, 235.0 / 255, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Field
-    for (int index = 0; index < height_map.size() - 1; index++) {
-        modelMatrix = glm::mat3(1); 
-        modelMatrix *= transform2D::Translate((index) * 10, height_map[index]);
-        modelMatrix *= transform2D::Shear(index * 10, height_map[index], (index + 1) * 10, height_map[index + 1]);
-        modelMatrix *= transform2D::Scale(10, std::max(height_map[index], height_map[index + 1]));
-        RenderMesh2D(meshes["square"], shaders["VertexColor"], modelMatrix);
-    }
-
 
     // projectiles
     for (auto &proj : projectiles) {
@@ -118,9 +112,39 @@ void Tema1::Update(float deltaTimeSeconds)
             secondTank.hit();
             proj.disable();
         }
+        if (proj.checkCollisionField(height_map)) {
+            std::cout << "HIT!\n";
+            std::cout.flush();
+            float projX = proj.getProjX() / 10;
+            float projY = proj.getProjY();
+            height_map[projX] = 0;
+            proj.disable();
+        }
         Drawable* body = proj.getBody();
         RenderMesh2D(body->getMesh(), shaders["VertexColor"], body->getModelMatrix());
     }
+
+    // Field
+    // Check for big differences
+    for (int index = 0; index < height_map.size() - 1; index++) {
+        if (height_map[index + 1] - height_map[index] > THRESHOLD) {
+            height_map[index + 1] -= EPSILON * deltaTimeSeconds;
+            height_map[index] += EPSILON * deltaTimeSeconds;
+        }
+        if (height_map[index] - height_map[index + 1] > THRESHOLD) {
+            height_map[index + 1] += EPSILON * deltaTimeSeconds;
+            height_map[index] -= EPSILON * deltaTimeSeconds;
+        }
+    }
+    
+    for (int index = 0; index < height_map.size() - 1; index++) {
+        modelMatrix = glm::mat3(1); 
+        modelMatrix *= transform2D::Translate((index) * 10, height_map[index]);
+        modelMatrix *= transform2D::Shear(index * 10, height_map[index], (index + 1) * 10, height_map[index + 1]);
+        modelMatrix *= transform2D::Scale(10, std::max(height_map[index], height_map[index + 1]));
+        RenderMesh2D(meshes["square"], shaders["VertexColor"], modelMatrix);
+    }
+
 
     // Tanks
     if (firstTank.isAlive()) {
