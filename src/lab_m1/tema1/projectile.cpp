@@ -2,9 +2,8 @@
 #include "lab_m1/tema1/drawable.h"
 #include "lab_m1/tema1/transform2D.h"
 #include "lab_m1/tema1/object2D.h"
-#include <iostream>
 
-const int PRAG_IN_ENGLEZA = 1;
+const int THRESHOLD = 1;
 
 Projectile::Projectile(glm::vec2 proj_vec, glm::vec2 proj_pos) : proj_vec(proj_vec), proj_pos(proj_pos) {
     Mesh* proj = object2D::CreateProj("proj", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 5);
@@ -27,9 +26,8 @@ Drawable* Projectile::getBody() {
 }
 
 bool Projectile::checkCollisionTank(float tankX, float tankY, float tankSize) {
-    return (proj_pos.x >= tankX - 6.5 * tankSize &&
-            proj_pos.x <= tankX + 6.5 * tankSize) &&
-           (proj_pos.y >= tankY && proj_pos.y <= tankY + 2.5 * tankSize);
+    float distance = glm::sqrt((tankX - proj_pos.x) * (tankX - proj_pos.x) + (tankY - proj_pos.y) * (tankY - proj_pos.y));
+    return distance <= 6.5 * tankSize;
 }
 
 bool Projectile::checkCollisionField(std::vector<float> &height_map) {
@@ -39,7 +37,7 @@ bool Projectile::checkCollisionField(std::vector<float> &height_map) {
     float By = height_map[Bx / 10];
     float t = (proj_pos.x - Ax) / (Bx - Ax);
     float ground_proj_y = Ay + t * (By - Ay);
-    return proj_pos.y - ground_proj_y  < PRAG_IN_ENGLEZA;
+    return proj_pos.y - ground_proj_y  < THRESHOLD;
 }
 
 bool Projectile::isEnabled() {

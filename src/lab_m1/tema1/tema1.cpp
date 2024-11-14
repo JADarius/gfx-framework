@@ -108,10 +108,12 @@ void Tema1::Update(float deltaTimeSeconds)
         if (proj.checkCollisionTank(firstTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize())) {
             firstTank.hit();
             proj.disable();
+            continue;
         }
         if (proj.checkCollisionTank(secondTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize())) {
             secondTank.hit();
             proj.disable();
+            continue;
         }
         if (proj.checkCollisionField(height_map)) {
             std::cout.flush();
@@ -123,6 +125,7 @@ void Tema1::Update(float deltaTimeSeconds)
                 height_map[index] = std::min(height_map[index], new_y);
             }
             proj.disable();
+            continue;
         }
         Drawable* body = proj.getBody();
         RenderMesh2D(body->getMesh(), shaders["VertexColor"], body->getModelMatrix());
