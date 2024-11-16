@@ -1,21 +1,23 @@
+#include <algorithm>
 #include "lab_m1/tema1/tank.h"
 #include "lab_m1/tema1/drawable.h"
 #include "lab_m1/tema1/object2D.h"
 #include "lab_m1/tema1/projectile.h"
 #include "lab_m1/tema1/transform2D.h"
 
-int firstBaseIndex = 0;
-int secondBaseIndex = 1;
-int topIndex = 2;
-int turretIndex = 3;
-int healthBarIndex = 4;
-int healthBarProgressIndex = 5;
+const int firstBaseIndex = 0;
+const int secondBaseIndex = 1;
+const int topIndex = 2;
+const int turretIndex = 3;
+const int healthBarIndex = 4;
+const int healthBarProgressIndex = 5;
+const int trajectoryStartIndex = 6;
+const int trajectoryPartCount = 100;
 
 Tank::Tank(float tankX, float tankSize, float turretAngle, glm::vec3 color) {
     this->tankX = tankX;
     this->tankSize = tankSize;
     this->turretAngle = turretAngle;
-    fired_proj = false;
     parts = std::vector<Drawable*>();
     hitpoints = 50;
 
@@ -31,9 +33,30 @@ Tank::Tank(float tankX, float tankSize, float turretAngle, glm::vec3 color) {
     parts.push_back(new Drawable(healthBar));
     Mesh *healthBarProgress = object2D::CreateCeva("healthBarProgress", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
     parts.push_back(new Drawable(healthBarProgress));
+    Mesh *trajectoryPart = object2D::CreateCeva("trajPart", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
+    for (int index = trajectoryStartIndex; index <= trajectoryStartIndex + trajectoryPartCount; index++) {
+        parts.push_back(new Drawable(trajectoryPart));
+    }
 }
 
 Tank::~Tank() {
+}
+
+void Tank::simulateTrajectory() {
+    glm::vec2 sim_proj_pos = glm::vec2(tankX + 5 * tankSize * glm::cos(angle + turretAngle), tankY + 4 * tankSize + 5 * tankSize * glm::sin(angle + turretAngle));
+    glm::vec2 sim_proj_vec = glm::vec2(glm::cos(angle + turretAngle) * 600, glm::sin(angle + turretAngle) * 600);
+    for (int index = trajectoryStartIndex; index <= trajectoryStartIndex + trajectoryPartCount; index++) {
+        glm::vec2 prev_proj_pos = sim_proj_pos;
+        glm::vec2 prev_proj_vec = sim_proj_vec;
+        float deltaTime = 0.1;
+        sim_proj_pos += sim_proj_vec * deltaTime;
+        sim_proj_vec.y -= 1000 * deltaTime; 
+        modelMatrix = glm::mat3(1);
+        modelMatrix *= transform2D::Translate(prev_proj_pos.x, prev_proj_pos.y);
+        modelMatrix *= transform2D::Shear(prev_proj_pos.x, prev_proj_pos.y, sim_proj_pos.x, sim_proj_pos.y);
+        modelMatrix *= transform2D::Scale(sim_proj_pos.x - prev_proj_pos.x, 5);
+        parts[index]->setModelMatrix(modelMatrix);
+    }
 }
 
 void Tank::updateTank(std::vector<float> &height_map, float deltaTime) {
@@ -84,6 +107,8 @@ void Tank::updateTank(std::vector<float> &height_map, float deltaTime) {
     modelMatrix *= transform2D::Translate(tankX - 25, tankY + 70);
     modelMatrix *= transform2D::Scale(hitpoints, 10);
     parts[healthBarProgressIndex]->setModelMatrix(modelMatrix);
+
+    simulateTrajectory();
 }
 
 std::vector<Drawable*> Tank::getParts() {
@@ -117,7 +142,6 @@ float Tank::getTankSize() {
 }
 
 Projectile Tank::fireProj() {
-    fired_proj = true;
     proj_pos = glm::vec2(tankX + 5 * tankSize * glm::cos(angle + turretAngle), tankY + 4 * tankSize + 5 * tankSize * glm::sin(angle + turretAngle));
     proj_vec = glm::vec2(glm::cos(angle + turretAngle) * 600, glm::sin(angle + turretAngle) * 600);
     return Projectile(proj_vec, proj_pos);

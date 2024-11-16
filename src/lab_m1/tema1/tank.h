@@ -23,17 +23,18 @@ class Tank
         Projectile fireProj();
         void hit();
         bool isAlive();
+        void simulateTrajectory();
     
     private:
         float tankX, tankY;
         float tankSize;
         float turretAngle;
         float angle;
-        bool fired_proj;
         glm::vec2 proj_vec;
         glm::vec2 proj_pos;
 
         glm::mat3 modelMatrix;
         std::vector<Drawable*> parts;
         int hitpoints;
+
 };

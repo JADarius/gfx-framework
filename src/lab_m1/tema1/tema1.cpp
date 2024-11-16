@@ -22,7 +22,7 @@ using namespace m1;
  *  and the order in which they are called, see `world.cpp`.
  */
 
-const float THRESHOLD = 7.5;
+const float THRESHOLD = 10;
 const float EPSILON = 10;
 const float BLAST_RADIUS = 50;
 
