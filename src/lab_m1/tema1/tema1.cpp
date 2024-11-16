@@ -34,10 +34,19 @@ std::vector<float> gen_heights(int length) {
     return height_map;
 }
 
+std::vector<float> gen_heights_background(int length) {
+    std::vector<float> height_map(length);
+    for (int x = 0; x < length; x++) {
+        height_map[x] = 50 * glm::sin(0.3 * x) + 50 * glm::sin(0.2 * x) + 450;
+    }
+    return height_map;
+}
+
 Tema1::Tema1() : firstTank(Tank(200.1, 5, 0, glm::vec3(0, 0, 1))), secondTank(Tank(1000.1, 5, 3.14, glm::vec3(1, 0, 0)))
 {
     glm::ivec2 resolution = window->GetResolution();
     height_map = gen_heights(resolution.x / 10 + 1);
+    height_map_background = gen_heights_background(resolution.x / 10 + 1);
     projectiles = std::vector<Projectile>();
 }
 
@@ -60,23 +69,11 @@ void Tema1::Init()
     glm::vec3 corner = glm::vec3(0, 0, 0);
     float squareSide = 1;
 
-    cx = (corner.x + squareSide) / 2;
-    cy = (corner.y + squareSide) / 2;
-
-    // Initialize tx and ty (the translation steps)
-    translateX = 0;
-    translateY = 0;
-
-    // Initialize sx and sy (the scale factors)
-    scaleX = 1;
-    scaleY = 1;
-
-    // Initialize angularStep
-    angularStep = 0.5;
-
-    Mesh* square = object2D::CreateCeva("square", corner, squareSide, glm::vec3(225.0 / 255, 235.0 / 255, 33.0 / 255), true);
-    AddMeshToList(square);
-    Mesh* proj = object2D::CreateCeva("proj", corner, 10, glm::vec3(0, 0, 0), true);
+    Mesh* field = object2D::CreateSquare("field", corner, squareSide, glm::vec3(225.0 / 255, 235.0 / 255, 33.0 / 255), true);
+    AddMeshToList(field);
+    Mesh* background = object2D::CreateSquare("background", glm::vec3(0, 0, -1), squareSide, glm::vec3(245.0 / 255, 250.0 / 255, 186.0 / 255), true);
+    AddMeshToList(background);
+    Mesh* proj = object2D::CreateSquare("proj", corner, 10, glm::vec3(0, 0, 0), true);
     AddMeshToList(proj);
 }
 
@@ -99,18 +96,18 @@ void Tema1::Update(float deltaTimeSeconds)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-    // projectiles
+    // Projectiles
     for (auto &proj : projectiles) {
         if (!proj.isEnabled()) {
             continue;
         }
         proj.update(deltaTimeSeconds);
-        if (proj.checkCollisionTank(firstTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize())) {
+        if (proj.checkCollisionTank(firstTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize()) && firstTank.isAlive()) {
             firstTank.hit();
             proj.disable();
             continue;
         }
-        if (proj.checkCollisionTank(secondTank.getTankX(), firstTank.getTankY(), firstTank.getTankSize())) {
+        if (proj.checkCollisionTank(secondTank.getTankX(), secondTank.getTankY(), secondTank.getTankSize()) && secondTank.isAlive()) {
             secondTank.hit();
             proj.disable();
             continue;
@@ -144,12 +141,22 @@ void Tema1::Update(float deltaTimeSeconds)
         }
     }
     
+    // Draw the field
     for (int index = 0; index < height_map.size() - 1; index++) {
         modelMatrix = glm::mat3(1); 
         modelMatrix *= transform2D::Translate((index) * 10, height_map[index]);
         modelMatrix *= transform2D::Shear(index * 10, height_map[index], (index + 1) * 10, height_map[index + 1]);
         modelMatrix *= transform2D::Scale(10, std::max(height_map[index], height_map[index + 1]));
-        RenderMesh2D(meshes["square"], shaders["VertexColor"], modelMatrix);
+        RenderMesh2D(meshes["field"], shaders["VertexColor"], modelMatrix);
+    }
+
+    // Background
+    for (int index = 0; index < height_map_background.size() - 1; index++) {
+        modelMatrix = glm::mat3(1); 
+        modelMatrix *= transform2D::Translate((index) * 10, height_map_background[index]);
+        modelMatrix *= transform2D::Shear(index * 10, height_map_background[index], (index + 1) * 10, height_map_background[index + 1]);
+        modelMatrix *= transform2D::Scale(10, std::max(height_map_background[index], height_map_background[index + 1]));
+        RenderMesh2D(meshes["background"], shaders["VertexColor"], modelMatrix);
     }
 
 

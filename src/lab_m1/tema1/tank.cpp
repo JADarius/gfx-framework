@@ -27,13 +27,13 @@ Tank::Tank(float tankX, float tankSize, float turretAngle, glm::vec3 color) {
     parts.push_back(new Drawable(secondBase)); 
     Mesh* top = object2D::CreateTankTop("top", glm::vec3(0, 0, 0), color, 2.5 * tankSize);
     parts.push_back(new Drawable(top)); 
-    Mesh *turret = object2D::CreateCeva("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
+    Mesh *turret = object2D::CreateSquare("turret", glm::vec3(0, 0, 0), 5, glm::vec3(0, 0, 0), true);
     parts.push_back(new Drawable(turret)); 
-    Mesh *healthBar = object2D::CreateCeva("healthBar", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), false);
+    Mesh *healthBar = object2D::CreateSquare("healthBar", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), false);
     parts.push_back(new Drawable(healthBar));
-    Mesh *healthBarProgress = object2D::CreateCeva("healthBarProgress", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
+    Mesh *healthBarProgress = object2D::CreateSquare("healthBarProgress", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
     parts.push_back(new Drawable(healthBarProgress));
-    Mesh *trajectoryPart = object2D::CreateCeva("trajPart", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
+    Mesh *trajectoryPart = object2D::CreateSquare("trajPart", glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0), true);
     for (int index = trajectoryStartIndex; index <= trajectoryStartIndex + trajectoryPartCount; index++) {
         parts.push_back(new Drawable(trajectoryPart));
     }

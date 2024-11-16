@@ -7,7 +7,7 @@
 #include "utils/gl_utils.h"
 
 
-Mesh* object2D::CreateCeva(
+Mesh* object2D::CreateSquare(
     const std::string &name,
     glm::vec3 leftBottomCorner,
     float length,

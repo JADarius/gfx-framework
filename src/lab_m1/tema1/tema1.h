@@ -31,15 +31,9 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
      protected:
-        float cx, cy;
         glm::mat3 modelMatrix;
-        float translateX, translateY;
-        float scaleX, scaleY;
-        float angularStep;
-
-        float carX, carY;
-        float wheelRot;
         std::vector<float> height_map;
+        std::vector<float> height_map_background;
 
         float tankX, tankY;
         float tankSize;
