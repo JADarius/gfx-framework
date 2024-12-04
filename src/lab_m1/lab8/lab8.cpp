@@ -255,7 +255,6 @@ void Lab8::OnKeyPress(int key, int mods)
             is_spot = 1;
         }
     }
-
 }
 
 

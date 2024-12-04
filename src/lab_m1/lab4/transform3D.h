@@ -15,7 +15,6 @@ namespace transform3D
             0, 0, 1, translateZ,
             0, 0, 0, 1
         ));
-
     }
 
     // Scale matrix
@@ -28,7 +27,6 @@ namespace transform3D
             0, 0, scaleZ, 0,
             0, 0, 0, 1
         ));
-
     }
 
     // Rotate matrix relative to the OZ axis
@@ -41,7 +39,6 @@ namespace transform3D
             0, 0, 1, 0,
             0, 0, 0, 1
         ));
-
     }
 
     // Rotate matrix relative to the OY axis
@@ -54,7 +51,6 @@ namespace transform3D
             -glm::sin(radians), 0, glm::cos(radians), 0,
             0, 0, 0, 1
         ));
-
     }
 
     // Rotate matrix relative to the OX axis
@@ -67,6 +63,5 @@ namespace transform3D
             0, glm::sin(radians), glm::cos(radians), 0,
             0, 0, 0, 1
         ));
-
     }
 }   // namespace transform3D

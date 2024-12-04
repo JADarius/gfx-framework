@@ -65,5 +65,4 @@ void main()
 
     // TODO(student): Write pixel out color
     out_color = vec4(object_color * lights, 1);
-
 }
