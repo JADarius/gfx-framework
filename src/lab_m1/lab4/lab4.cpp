@@ -24,6 +24,7 @@ Lab4::Lab4()
 Lab4::~Lab4()
 {
     delete field;
+    delete drone;
 }
 
 
@@ -55,6 +56,8 @@ void Lab4::Init()
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
 
     field = new Field(100, 100);
+
+    drone = new Drone(glm::vec3(0, 0, 0));
 }
 
 void Lab4::FrameStart()
@@ -65,24 +68,29 @@ void Lab4::FrameStart()
 }
 
 void Lab4::RenderScene() {
-    modelMatrix = glm::mat4(1);
-    modelMatrix *= transform3D::Translate(-2.5f, 0.5f, -1.5f);
-    modelMatrix *= transform3D::Translate(translateX, translateY, translateZ);
-    RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
+//    modelMatrix = glm::mat4(1);
+//    modelMatrix *= transform3D::Translate(-2.5f, 0.5f, -1.5f);
+//    modelMatrix *= transform3D::Translate(translateX, translateY, translateZ);
+//    RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
+//
+//    modelMatrix = glm::mat4(1);
+//    modelMatrix *= transform3D::Translate(0.0f, 0.5f, -1.5f);
+//    modelMatrix *= transform3D::Scale(scaleX, scaleY, scaleZ);
+//    RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
+//
+//    modelMatrix = glm::mat4(1);
+//    modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
+//    modelMatrix *= transform3D::RotateOX(angularStepOX);
+//    modelMatrix *= transform3D::RotateOY(angularStepOY);
+//    modelMatrix *= transform3D::RotateOZ(angularStepOZ);
+ 
+
+    //RenderMesh(field->getBody(), shaders["VertexNormal"], glm::mat4(1));
 
     modelMatrix = glm::mat4(1);
-    modelMatrix *= transform3D::Translate(0.0f, 0.5f, -1.5f);
-    modelMatrix *= transform3D::Scale(scaleX, scaleY, scaleZ);
-    RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
-
-    modelMatrix = glm::mat4(1);
-    modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
-    modelMatrix *= transform3D::RotateOX(angularStepOX);
+    modelMatrix *= transform3D::Translate(drone->getPosX(), drone->getPosY(), drone->getPosZ());
     modelMatrix *= transform3D::RotateOY(angularStepOY);
-    modelMatrix *= transform3D::RotateOZ(angularStepOZ);
-    RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
-
-    RenderMesh(field->getBody(), shaders["VertexNormal"], glm::mat4(1));
+    RenderMesh(drone->getBody(), shaders["VertexNormal"], modelMatrix);
 }
 
 void Lab4::Update(float deltaTimeSeconds)
@@ -120,14 +128,12 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
 {
     float speed = 2.0;
     // TODO(student): Add transformation logic
-    if (!window->KeyHold(GLFW_MOUSE_BUTTON_RIGHT)) {
-        if (window->KeyHold(GLFW_KEY_W)) translateZ -= deltaTime * speed;
-        if (window->KeyHold(GLFW_KEY_S)) translateZ += deltaTime * speed;
-        if (window->KeyHold(GLFW_KEY_A)) translateX -= deltaTime * speed;
-        if (window->KeyHold(GLFW_KEY_D)) translateX += deltaTime * speed;
-    }
-    if (window->KeyHold(GLFW_KEY_R)) translateY -= deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_F)) translateY += deltaTime * speed;
+	if (window->KeyHold(GLFW_KEY_W)) drone->updatePosZ(deltaTime * speed);
+	if (window->KeyHold(GLFW_KEY_S)) drone->updatePosZ(-deltaTime * speed);
+	if (window->KeyHold(GLFW_KEY_A)) drone->updatePosX(deltaTime * speed);
+	if (window->KeyHold(GLFW_KEY_D)) drone->updatePosX(-deltaTime * speed);
+    if (window->KeyHold(GLFW_KEY_R)) drone->updatePosY(-deltaTime * speed);
+    if (window->KeyHold(GLFW_KEY_F)) drone->updatePosY(deltaTime * speed);
     if (window->KeyHold(GLFW_KEY_1)) {
         scaleX -= deltaTime * speed;
         scaleY -= deltaTime * speed;
@@ -140,8 +146,8 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
     }
     if (window->KeyHold(GLFW_KEY_3)) angularStepOX -= deltaTime * speed;
     if (window->KeyHold(GLFW_KEY_4)) angularStepOX += deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_5)) angularStepOY -= deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_6)) angularStepOY += deltaTime * speed;
+    if (window->KeyHold(GLFW_KEY_Q)) angularStepOY -= deltaTime * speed;
+    if (window->KeyHold(GLFW_KEY_E)) angularStepOY += deltaTime * speed;
     if (window->KeyHold(GLFW_KEY_7)) angularStepOZ -= deltaTime * speed;
     if (window->KeyHold(GLFW_KEY_8)) angularStepOZ += deltaTime * speed;
 }

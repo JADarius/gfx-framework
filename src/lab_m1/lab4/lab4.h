@@ -3,6 +3,7 @@
 #include "components/simple_scene.h"
 
 #include "Field.h"
+#include "Drone.h"
 
 namespace m1
 {
@@ -48,6 +49,7 @@ namespace m1
         GLenum polygonMode;
         ViewportArea miniViewportArea;
         Field* field;
+        Drone* drone;
     };
 }   // namespace m1
 
