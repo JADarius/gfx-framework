@@ -2,6 +2,7 @@
 
 #include "components/simple_scene.h"
 
+#include "Field.h"
 
 namespace m1
 {
@@ -46,6 +47,7 @@ namespace m1
         float angularStepOX, angularStepOY, angularStepOZ;
         GLenum polygonMode;
         ViewportArea miniViewportArea;
+        Field* field;
     };
 }   // namespace m1
 

@@ -23,6 +23,7 @@ Lab4::Lab4()
 
 Lab4::~Lab4()
 {
+    delete field;
 }
 
 
@@ -52,12 +53,14 @@ void Lab4::Init()
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
+
+    field = new Field(100, 100);
 }
 
 void Lab4::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0, 0, 0, 1);
+    glClearColor(146.0 / 255, 179.0 / 255, 232.0 / 255, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -78,6 +81,8 @@ void Lab4::RenderScene() {
     modelMatrix *= transform3D::RotateOY(angularStepOY);
     modelMatrix *= transform3D::RotateOZ(angularStepOZ);
     RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
+
+    RenderMesh(field->getBody(), shaders["VertexNormal"], glm::mat4(1));
 }
 
 void Lab4::Update(float deltaTimeSeconds)
@@ -91,13 +96,13 @@ void Lab4::Update(float deltaTimeSeconds)
     glViewport(0, 0, resolution.x, resolution.y);
 
     RenderScene();
-    DrawCoordinateSystem();
+    // DrawCoordinateSystem();
 
     glClear(GL_DEPTH_BUFFER_BIT);
-    glViewport(miniViewportArea.x, miniViewportArea.y, miniViewportArea.width, miniViewportArea.height);
+    //glViewport(miniViewportArea.x, miniViewportArea.y, miniViewportArea.width, miniViewportArea.height);
 
     // TODO(student): render the scene again, in the new viewport
-    DrawCoordinateSystem();
+    //DrawCoordinateSystem();
 }
 
 void Lab4::FrameEnd()
@@ -115,10 +120,12 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
 {
     float speed = 2.0;
     // TODO(student): Add transformation logic
-    if (window->KeyHold(GLFW_KEY_W)) translateZ -= deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_S)) translateZ += deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_A)) translateX -= deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_D)) translateX += deltaTime * speed;
+    if (!window->KeyHold(GLFW_MOUSE_BUTTON_RIGHT)) {
+        if (window->KeyHold(GLFW_KEY_W)) translateZ -= deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_S)) translateZ += deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_A)) translateX -= deltaTime * speed;
+        if (window->KeyHold(GLFW_KEY_D)) translateX += deltaTime * speed;
+    }
     if (window->KeyHold(GLFW_KEY_R)) translateY -= deltaTime * speed;
     if (window->KeyHold(GLFW_KEY_F)) translateY += deltaTime * speed;
     if (window->KeyHold(GLFW_KEY_1)) {
