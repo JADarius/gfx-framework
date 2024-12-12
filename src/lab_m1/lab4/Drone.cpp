@@ -22,6 +22,34 @@ Drone::Drone(glm::vec3 position) {
 		VertexFormat(glm::vec3(0.5, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
 		VertexFormat(glm::vec3(0.1, -0.1, 0.5), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
 		VertexFormat(glm::vec3(-0.1, -0.1, 0.5), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		// First cube
+		VertexFormat(glm::vec3(-0.3, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		// First cube
+		VertexFormat(glm::vec3(-0.3, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		// First cube
+		VertexFormat(glm::vec3(-0.3, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		// First cube
+		VertexFormat(glm::vec3(-0.3, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.5, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
+		VertexFormat(glm::vec3(-0.3, 0.3, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
 	};
 
 	vector<unsigned int> indices = {
@@ -48,7 +76,18 @@ Drone::Drone(glm::vec3 position) {
 		2, 7, 15,
 		2, 15, 10,
 		3, 6, 14,
-		3, 14, 11
+		3, 14, 11,
+		// First cube
+		16, 17, 20,
+		17, 20, 21,
+		0, 1, 18,
+		1, 18, 19,
+		18, 19, 20,
+		19, 20, 21,
+		0, 16, 18,
+		16, 18, 20,
+		1, 17, 19,
+		17, 19, 21
 	};
 
 	body = new Mesh("Frame");
@@ -71,6 +110,10 @@ float Drone::getPosY() {
 
 float Drone::getPosZ() {
 	return position.z;
+}
+
+glm::vec3 Drone::getPos() {
+	return position;
 }
 
 void Drone::updatePosX(float diff) {

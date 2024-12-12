@@ -16,6 +16,7 @@ public:
 	void updatePosX(float diff);
 	void updatePosY(float diff);
 	void updatePosZ(float diff);
+	glm::vec3 getPos();
 private:
 	Mesh* body;
 	glm::vec3 position;

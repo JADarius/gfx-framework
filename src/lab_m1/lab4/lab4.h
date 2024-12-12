@@ -45,7 +45,7 @@ namespace m1
         glm::mat4 modelMatrix;
         float translateX, translateY, translateZ;
         float scaleX, scaleY, scaleZ;
-        float angularStepOX, angularStepOY, angularStepOZ;
+        float angularStepOX, rotationAngle, angularStepOZ;
         GLenum polygonMode;
         ViewportArea miniViewportArea;
         Field* field;
