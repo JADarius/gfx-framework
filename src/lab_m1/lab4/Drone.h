@@ -4,6 +4,7 @@
 #include "core/engine.h"
 #include "utils/gl_utils.h"
 #include "Drawable.h"
+#include "object3D.h"
 
 class Drone
 {

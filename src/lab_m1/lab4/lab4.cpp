@@ -4,8 +4,6 @@
 #include <string>
 #include <iostream>
 
-#include "lab_m1/lab4/transform3D.h"
-
 using namespace std;
 using namespace m1;
 
@@ -30,34 +28,30 @@ Lab4::~Lab4()
 
 void Lab4::Init()
 {
+    // Create a shader program for drawing face polygon with the color of the normal
+    {
+        Shader *shader = new Shader("HwShader");
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "lab4", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "lab4", "shaders", "FragmentShader.glsl"), GL_FRAGMENT_SHADER);
+        shader->CreateAndLink();
+        shaders[shader->GetName()] = shader;
+    }
+
     polygonMode = GL_FILL;
 
     Mesh* mesh = new Mesh("box");
     mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
     meshes[mesh->GetMeshID()] = mesh;
 
-    // Initialize tx, ty and tz (the translation steps)
-    translateX = 0;
-    translateY = 0;
-    translateZ = 0;
-
-    // Initialize sx, sy and sz (the scale factors)
-    scaleX = 1;
-    scaleY = 1;
-    scaleZ = 1;
-
-    // Initialize angular steps
-    angularStepOX = 0;
-    rotationAngle = 0;
-    angularStepOZ = 0;
-
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
 
-    field = new Field(100, 100);
+    field = new Field(50, 50);
 
-    drone = new Drone(glm::vec3(0, 0, 0));
+    drone = new Drone(glm::vec3(25, 5, 25));
+
+    tree = new Tree(glm::vec3(0, 0, 0));
 }
 
 void Lab4::FrameStart()
@@ -68,7 +62,7 @@ void Lab4::FrameStart()
 }
 
 void Lab4::RenderScene() {
-    //RenderMesh(field->getBody(), shaders["VertexNormal"], glm::mat4(1));
+    //RenderSimpleMesh(field->getBody(), shaders["HwShader"], glm::mat4(1));
 
     //modelMatrix = glm::mat4(1);
     //modelMatrix = glm::translate(modelMatrix, drone->getPos());
@@ -76,6 +70,12 @@ void Lab4::RenderScene() {
     for (auto drawable : drone->getBody()) {
         RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
     }
+    for (auto drawable : tree->getBody()) {
+        RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
+    }
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(10.0f, 10.0f, 10.0f));
+	RenderMesh(meshes["tree"], shaders["VertexNormal"], glm::mat4(1));
 }
 
 void Lab4::Update(float deltaTimeSeconds)
@@ -113,28 +113,56 @@ void Lab4::FrameEnd()
 
 void Lab4::OnInputUpdate(float deltaTime, int mods)
 {
-    float speed = 2.0;
+    float moveSpeed = 10.0;
+    float rotationSpeed = 2.0;
     // TODO(student): Add transformation logic
     if (window->KeyHold(GLFW_KEY_A)) {
-        drone->updatePosZ(deltaTime * speed * glm::sin(drone->getRotation()));
-		drone->updatePosX(deltaTime * speed * glm::cos(drone->getRotation()));
+        drone->updatePosZ(-deltaTime * moveSpeed * glm::sin(drone->getRotation()));
+		drone->updatePosX(deltaTime * moveSpeed * glm::cos(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_D)) {
-        drone->updatePosZ(-deltaTime * speed * glm::sin(drone->getRotation()));
-		drone->updatePosX(-deltaTime * speed * glm::cos(drone->getRotation()));
+        drone->updatePosZ(deltaTime * moveSpeed * glm::sin(drone->getRotation()));
+		drone->updatePosX(-deltaTime * moveSpeed * glm::cos(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_W)) {
-        drone->updatePosZ(deltaTime * speed * glm::cos(drone->getRotation()));
-		drone->updatePosX(deltaTime * speed * glm::sin(drone->getRotation()));
+        drone->updatePosZ(deltaTime * moveSpeed * glm::cos(drone->getRotation()));
+		drone->updatePosX(deltaTime * moveSpeed * glm::sin(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_S)) {
-        drone->updatePosZ(-deltaTime * speed * glm::cos(drone->getRotation()));
-		drone->updatePosX(-deltaTime * speed * glm::sin(drone->getRotation()));
+        drone->updatePosZ(-deltaTime * moveSpeed * glm::cos(drone->getRotation()));
+		drone->updatePosX(-deltaTime * moveSpeed * glm::sin(drone->getRotation()));
     }
-    if (window->KeyHold(GLFW_KEY_R)) drone->updatePosY(-deltaTime * speed);
-    if (window->KeyHold(GLFW_KEY_F)) drone->updatePosY(deltaTime * speed);
-    if (window->KeyHold(GLFW_KEY_Q)) drone->rotate(deltaTime * speed);
-    if (window->KeyHold(GLFW_KEY_E)) drone->rotate(-deltaTime * speed);
+    if (window->KeyHold(GLFW_KEY_R)) drone->updatePosY(-deltaTime * moveSpeed);
+    if (window->KeyHold(GLFW_KEY_F)) drone->updatePosY(deltaTime * moveSpeed);
+    if (window->KeyHold(GLFW_KEY_Q)) drone->rotate(deltaTime * rotationSpeed);
+    if (window->KeyHold(GLFW_KEY_E)) drone->rotate(-deltaTime * rotationSpeed);
+}
+
+void Lab4::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelMatrix)
+{
+    if (!mesh || !shader || !shader->GetProgramID())
+        return;
+
+    // Render an object using the specified shader and the specified position
+    glUseProgram(shader->program);
+
+    // Bind model matrix
+    GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
+    glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    // Bind view matrix
+    glm::mat4 viewMatrix = GetSceneCamera()->GetViewMatrix();
+    int loc_view_matrix = glGetUniformLocation(shader->program, "View");
+    glUniformMatrix4fv(loc_view_matrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+    // Bind projection matrix
+    glm::mat4 projectionMatrix = GetSceneCamera()->GetProjectionMatrix();
+    int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
+    glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+    // Draw the object
+    glBindVertexArray(mesh->GetBuffers()->m_VAO);
+    glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 }
 
 

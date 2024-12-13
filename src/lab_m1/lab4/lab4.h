@@ -4,6 +4,7 @@
 
 #include "Field.h"
 #include "Drone.h"
+#include "Tree.h"
 
 namespace m1
 {
@@ -41,6 +42,7 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         void RenderScene();
+        void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix);
      protected:
         glm::mat4 modelMatrix;
         float translateX, translateY, translateZ;
@@ -50,6 +52,7 @@ namespace m1
         ViewportArea miniViewportArea;
         Field* field;
         Drone* drone;
+        Tree* tree;
     };
 }   // namespace m1
 

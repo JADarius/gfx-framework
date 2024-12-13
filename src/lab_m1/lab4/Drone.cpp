@@ -9,71 +9,19 @@ Drone::Drone(glm::vec3 position) {
 	rotationAngleBlades = 0.0f;
 
 	// Body frame creation
-	vector<VertexFormat> vertices = {
-		VertexFormat(glm::vec3(-0.8, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(-0.8, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.8, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.8, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(-0.8, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(-0.8, -0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.8, -0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.8, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-	};
+	Mesh* frame = object3D::createRectCuboid(glm::vec3(0, 0, 0), glm::vec3(0.5f, 0.5f, 0.5f), 0.8, 0.1, 0.1);
 
-	vector<unsigned int> indices = {
-		0, 1, 3,
-		1, 2, 3,
-		4, 5, 7,
-		5, 6, 7,
-		0, 4, 1,
-		1, 4, 5,
-		2, 3, 7,
-		2, 7, 6,
-		0, 3, 7,
-		0, 7, 4,
-		1, 2, 6,
-		1, 6, 5
-	};
+	meshes.push_back(frame);
 
-	Mesh* mesh = new Mesh("body frame");
-	mesh->InitFromData(vertices, indices);
-
-	meshes.push_back(mesh);
-
-	Drawable* body_frame1 = new Drawable(mesh);
+	Drawable* body_frame1 = new Drawable(frame);
 	body.push_back(body_frame1);
-	Drawable* body_frame2 = new Drawable(mesh);
+	Drawable* body_frame2 = new Drawable(frame);
 	glm::mat4 modelMatrix = glm::mat4(1);
 	body_frame2->setModelMatrix(modelMatrix);
 	body.push_back(body_frame2);
 
 	// Cubes creation
-	vector<VertexFormat> vertices_cube = {
-		VertexFormat(glm::vec3(-0.1, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(-0.1, -0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(-0.1, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(-0.1, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.1, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.1, -0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-		VertexFormat(glm::vec3(0.1, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0.5, 0.5, 0.5)),
-	};
-
-	vector<unsigned int> indices_cube = {
-		0, 1, 2,
-		1, 2, 3,
-		4, 6, 5,
-		5, 6, 7,
-		0, 2, 4,
-		2, 6, 4,
-		1, 5, 3,
-		5, 7, 3,
-		6, 2, 3,
-		6, 3, 7
-	};
-
-	Mesh* cube = new Mesh("cube");
-	cube->InitFromData(vertices_cube, indices_cube);
+	Mesh* cube = object3D::createCube(glm::vec3(0, 0, 0), glm::vec3(0.5, 0.5, 0.5), 0.1);
 
 	meshes.push_back(cube);
 
@@ -90,34 +38,7 @@ Drone::Drone(glm::vec3 position) {
 	body.push_back(fourth_cube);
 
 	// Blades creation
-	vector<VertexFormat> vertices_blade = {
-		VertexFormat(glm::vec3(-0.8, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(-0.8, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(0.8, 0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(0.8, 0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(-0.8, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(-0.8, -0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(0.8, -0.1, -0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-		VertexFormat(glm::vec3(0.8, -0.1, 0.1), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0)),
-	};
-
-	vector<unsigned int> indices_blade = {
-		0, 1, 3,
-		1, 2, 3,
-		4, 5, 7,
-		5, 6, 7,
-		0, 4, 1,
-		1, 4, 5,
-		2, 3, 7,
-		2, 7, 6,
-		0, 3, 7,
-		0, 7, 4,
-		1, 2, 6,
-		1, 6, 5
-	};
-
-	Mesh* blade = new Mesh("blade");
-	blade->InitFromData(vertices_blade, indices_blade);
+	Mesh* blade = object3D::createRectCuboid(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 0.8, 0.1, 0.1);
 
 	meshes.push_back(blade);
 
@@ -161,20 +82,13 @@ void Drone::updatePosX(float diff) {
 }
 
 void Drone::updatePosY(float diff) {
-	position.y -= diff;
+	if (position.y - diff > 1) {
+		position.y -= diff;
+	}
 }
 
 void Drone::updatePosZ(float diff) {
 	position.z -= diff;
-}
-
-void printMatrix(const glm::mat4& matrix) {
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			std::cout << matrix[i][j] << " ";
-		}
-		std::cout << '\n';
-	}
 }
 
 void Drone::updateBody(float deltaTime) {
