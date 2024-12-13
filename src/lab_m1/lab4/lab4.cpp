@@ -68,12 +68,14 @@ void Lab4::FrameStart()
 }
 
 void Lab4::RenderScene() {
-    RenderMesh(field->getBody(), shaders["VertexNormal"], glm::mat4(1));
+    //RenderMesh(field->getBody(), shaders["VertexNormal"], glm::mat4(1));
 
-    modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, drone->getPos());
-    modelMatrix = glm::rotate(modelMatrix, rotationAngle + glm::radians(45.0f), glm::vec3(0, 1, 0));
-    RenderMesh(drone->getBody(), shaders["VertexNormal"], modelMatrix);
+    //modelMatrix = glm::mat4(1);
+    //modelMatrix = glm::translate(modelMatrix, drone->getPos());
+    //modelMatrix = glm::rotate(modelMatrix, rotationAngle + glm::radians(45.0f), glm::vec3(0, 1, 0));
+    for (auto drawable : drone->getBody()) {
+        RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
+    }
 }
 
 void Lab4::Update(float deltaTimeSeconds)
@@ -85,6 +87,8 @@ void Lab4::Update(float deltaTimeSeconds)
     // Sets the screen area where to draw
     glm::ivec2 resolution = window->GetResolution();
     glViewport(0, 0, resolution.x, resolution.y);
+
+    drone->updateBody(deltaTimeSeconds);
 
     RenderScene();
     // DrawCoordinateSystem();
@@ -112,25 +116,25 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
     float speed = 2.0;
     // TODO(student): Add transformation logic
     if (window->KeyHold(GLFW_KEY_A)) {
-        drone->updatePosZ(deltaTime * speed * glm::sin(rotationAngle));
-		drone->updatePosX(deltaTime * speed * glm::cos(rotationAngle));
+        drone->updatePosZ(deltaTime * speed * glm::sin(drone->getRotation()));
+		drone->updatePosX(deltaTime * speed * glm::cos(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_D)) {
-        drone->updatePosZ(-deltaTime * speed * glm::sin(rotationAngle));
-		drone->updatePosX(-deltaTime * speed * glm::cos(rotationAngle));
+        drone->updatePosZ(-deltaTime * speed * glm::sin(drone->getRotation()));
+		drone->updatePosX(-deltaTime * speed * glm::cos(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_W)) {
-        drone->updatePosZ(deltaTime * speed * glm::cos(rotationAngle));
-		drone->updatePosX(deltaTime * speed * glm::sin(rotationAngle));
+        drone->updatePosZ(deltaTime * speed * glm::cos(drone->getRotation()));
+		drone->updatePosX(deltaTime * speed * glm::sin(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_S)) {
-        drone->updatePosZ(-deltaTime * speed * glm::cos(rotationAngle));
-		drone->updatePosX(-deltaTime * speed * glm::sin(rotationAngle));
+        drone->updatePosZ(-deltaTime * speed * glm::cos(drone->getRotation()));
+		drone->updatePosX(-deltaTime * speed * glm::sin(drone->getRotation()));
     }
     if (window->KeyHold(GLFW_KEY_R)) drone->updatePosY(-deltaTime * speed);
     if (window->KeyHold(GLFW_KEY_F)) drone->updatePosY(deltaTime * speed);
-    if (window->KeyHold(GLFW_KEY_Q)) rotationAngle -= deltaTime * speed;
-    if (window->KeyHold(GLFW_KEY_E)) rotationAngle += deltaTime * speed;
+    if (window->KeyHold(GLFW_KEY_Q)) drone->rotate(deltaTime * speed);
+    if (window->KeyHold(GLFW_KEY_E)) drone->rotate(-deltaTime * speed);
 }
 
 
