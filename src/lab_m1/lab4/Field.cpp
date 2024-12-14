@@ -5,9 +5,6 @@
 
 using namespace std;
 
-Field::Field() {
-	Field(100, 100);
-}
 
 Field::Field(int n, int m) {
 	vector<VertexFormat> vertices;

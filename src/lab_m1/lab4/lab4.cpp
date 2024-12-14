@@ -3,6 +3,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
+
 
 using namespace std;
 using namespace m1;
@@ -23,6 +26,33 @@ Lab4::~Lab4()
 {
     delete field;
     delete drone;
+}
+
+std::vector<Tree*> genTrees() {
+    std::vector<Tree*> treeList;
+    srand(time(NULL));
+    for (int count = 0; count < 40; count++) {
+        GENERATE:
+        int x = rand() % 50;
+        int z = rand() % 50;
+        bool valid = true;
+        for (auto tree : treeList) {
+            if (abs(tree->getPosX() - x) < 1.0 && abs(tree->getPosZ() - x) < 1.0) {
+                valid = false;
+            }
+            if (x < 1.0 || z < 1.0 || x > 48.0 || z > 48.0) {
+                valid = false;
+            }
+        }
+        if (valid) {
+            Tree* tree = new Tree(glm::vec3(x, 1, z));
+            treeList.push_back(tree);
+        }
+        else {
+            goto GENERATE;
+        }
+    }
+    return treeList;
 }
 
 
@@ -51,7 +81,7 @@ void Lab4::Init()
 
     drone = new Drone(glm::vec3(25, 5, 25));
 
-    tree = new Tree(glm::vec3(0, 0, 0));
+    treeList = genTrees();
 }
 
 void Lab4::FrameStart()
@@ -62,7 +92,7 @@ void Lab4::FrameStart()
 }
 
 void Lab4::RenderScene() {
-    //RenderSimpleMesh(field->getBody(), shaders["HwShader"], glm::mat4(1));
+    RenderSimpleMesh(field->getBody(), shaders["HwShader"], glm::mat4(1));
 
     //modelMatrix = glm::mat4(1);
     //modelMatrix = glm::translate(modelMatrix, drone->getPos());
@@ -70,8 +100,10 @@ void Lab4::RenderScene() {
     for (auto drawable : drone->getBody()) {
         RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
     }
-    for (auto drawable : tree->getBody()) {
-        RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
+    for (Tree* tree : treeList) {
+		for (auto drawable : tree->getBody()) {
+			RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
+		}
     }
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::scale(modelMatrix, glm::vec3(10.0f, 10.0f, 10.0f));

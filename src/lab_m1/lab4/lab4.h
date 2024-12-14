@@ -52,7 +52,7 @@ namespace m1
         ViewportArea miniViewportArea;
         Field* field;
         Drone* drone;
-        Tree* tree;
+        std::vector<Tree*> treeList;
     };
 }   // namespace m1
 

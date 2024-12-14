@@ -7,7 +7,6 @@
 class Field
 {
 public:
-	Field();
 	Field(int n, int m);
 	~Field();
 	Mesh* getBody();
