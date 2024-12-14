@@ -18,6 +18,7 @@ public:
 	void updatePosX(float diff);
 	void updatePosY(float diff);
 	void updatePosZ(float diff);
+	void setPos(glm::vec3 pos);
 	void rotate(float diff);
 	float getRotation();
 	glm::vec3 getPos();

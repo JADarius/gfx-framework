@@ -31,16 +31,16 @@ Lab4::~Lab4()
 std::vector<Tree*> genTrees() {
     std::vector<Tree*> treeList;
     srand(time(NULL));
-    for (int count = 0; count < 40; count++) {
+    for (int count = 0; count < 20; count++) {
         GENERATE:
         int x = rand() % 50;
         int z = rand() % 50;
         bool valid = true;
         for (auto tree : treeList) {
-            if (abs(tree->getPosX() - x) < 1.0 && abs(tree->getPosZ() - x) < 1.0) {
+            if (abs(tree->getPosX() - x) < 5.0 && abs(tree->getPosZ() - z) < 5.0) {
                 valid = false;
             }
-            if (x < 1.0 || z < 1.0 || x > 48.0 || z > 48.0) {
+            if (x < 5.0 || z < 5.0 || x > 45.0 || z > 45.0) {
                 valid = false;
             }
         }
@@ -147,6 +147,7 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
 {
     float moveSpeed = 10.0;
     float rotationSpeed = 2.0;
+    glm::vec3 previous_pos = drone->getPos();
     // TODO(student): Add transformation logic
     if (window->KeyHold(GLFW_KEY_A)) {
         drone->updatePosZ(-deltaTime * moveSpeed * glm::sin(drone->getRotation()));
@@ -168,6 +169,20 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
     if (window->KeyHold(GLFW_KEY_F)) drone->updatePosY(deltaTime * moveSpeed);
     if (window->KeyHold(GLFW_KEY_Q)) drone->rotate(deltaTime * rotationSpeed);
     if (window->KeyHold(GLFW_KEY_E)) drone->rotate(-deltaTime * rotationSpeed);
+    for (auto tree : treeList) {
+        for (auto hitbox : tree->getHitboxes()) {
+            float x = max(hitbox->getXMin(), min(hitbox->getXMax(), drone->getPosX()));
+            float y = max(hitbox->getYMin(), min(hitbox->getYMax(), drone->getPosY()));
+            float z = max(hitbox->getZMin(), min(hitbox->getZMax(), drone->getPosZ()));
+
+            float distance = glm::sqrt((x - drone->getPosX()) * (x - drone->getPosX()) + (y - drone->getPosY()) * (y - drone->getPosY()) + (z - drone->getPosZ()) * (z - drone->getPosZ()));
+
+            // Collision detected
+            if (distance < 0.5f) {
+                drone->setPos(previous_pos);
+            }
+        }
+    }
 }
 
 void Lab4::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelMatrix)

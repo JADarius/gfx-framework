@@ -162,3 +162,7 @@ void Drone::rotate(float diff) {
 float Drone::getRotation() {
 	return rotationAngle;
 }
+
+void Drone::setPos(glm::vec3 pos) {
+	this->position = pos;
+}
