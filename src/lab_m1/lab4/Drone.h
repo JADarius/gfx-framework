@@ -5,6 +5,7 @@
 #include "utils/gl_utils.h"
 #include "Drawable.h"
 #include "object3D.h"
+#include "Camera.h"
 
 class Drone
 {
@@ -20,6 +21,7 @@ public:
 	void updatePosZ(float diff);
 	void setPos(glm::vec3 pos);
 	void rotate(float diff);
+	Camera* getCamera();
 	float getRotation();
 	glm::vec3 getPos();
 	void updateBody(float deltaTime);
@@ -29,4 +31,5 @@ private:
 	glm::vec3 position;
 	float rotationAngle;
 	float rotationAngleBlades;
+	Camera* camera;
 };

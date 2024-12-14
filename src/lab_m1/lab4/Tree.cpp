@@ -29,7 +29,7 @@ Tree::Tree(glm::vec3 position) {
 	meshes.push_back(cone);
 
 	float cone_height = 0.8 * 3.0f;
-	float cone_radius = 0.5f;
+	float cone_radius = 1.5f;
 
 	Drawable* firstLeaves = new Drawable(cone);
 

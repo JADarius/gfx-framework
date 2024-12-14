@@ -8,6 +8,8 @@ Drone::Drone(glm::vec3 position) {
 	rotationAngle = 0.0f;
 	rotationAngleBlades = 0.0f;
 
+	camera = new Camera(position, position, glm::vec3(0, 1, 0));
+
 	// Body frame creation
 	Mesh* frame = object3D::createRectCuboid(glm::vec3(0, 0, 0), glm::vec3(0.5f, 0.5f, 0.5f), 0.8, 0.1, 0.1);
 
@@ -78,17 +80,21 @@ glm::vec3 Drone::getPos() {
 }
 
 void Drone::updatePosX(float diff) {
-	position.x -= diff;
+	if (position.x - diff > 0.5f && position.x - diff < 45.0f) {
+		position.x -= diff;
+	}
 }
 
 void Drone::updatePosY(float diff) {
-	if (position.y - diff > 1) {
+	if (position.y - diff > 1.0f) {
 		position.y -= diff;
 	}
 }
 
 void Drone::updatePosZ(float diff) {
-	position.z -= diff;
+	if (position.z - diff > 0.5f && position.z - diff < 45.0f) {
+		position.z -= diff;
+	}
 }
 
 void Drone::updateBody(float deltaTime) {
@@ -153,6 +159,9 @@ void Drone::updateBody(float deltaTime) {
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
 	body[9]->setModelMatrix(modelMatrix);
 
+	// Update camera
+	glm::vec3 cameraPosition = glm::vec3(position.x + 4 * glm::sin(rotationAngle), position.y + 2, position.z + 4 * glm::cos(rotationAngle));
+	camera->Set(cameraPosition, position, glm::vec3(0, 1, 0));
 }
 
 void Drone::rotate(float diff) {
@@ -165,4 +174,8 @@ float Drone::getRotation() {
 
 void Drone::setPos(glm::vec3 pos) {
 	this->position = pos;
+}
+
+Camera* Drone::getCamera() {
+	return camera;
 }

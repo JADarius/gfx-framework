@@ -42,9 +42,11 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         void RenderScene();
+        void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix);
      protected:
         glm::mat4 modelMatrix;
+        glm::mat4 projectionMatrix;
         float translateX, translateY, translateZ;
         float scaleX, scaleY, scaleZ;
         float angularStepOX, rotationAngle, angularStepOZ;
