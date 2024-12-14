@@ -21,6 +21,8 @@ public:
 	void updatePosZ(float diff);
 	void setPos(glm::vec3 pos);
 	void rotate(float diff);
+	void takePackage();
+	void deliverPackage();
 	Camera* getCamera();
 	float getRotation();
 	glm::vec3 getPos();
@@ -28,6 +30,7 @@ public:
 private:
 	std::vector<Drawable*> body;
 	std::vector<Mesh*> meshes;
+	Drawable* package;
 	glm::vec3 position;
 	float rotationAngle;
 	float rotationAngleBlades;

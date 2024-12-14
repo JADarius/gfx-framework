@@ -55,6 +55,11 @@ Drone::Drone(glm::vec3 position) {
 
 	Drawable* fourth_blade = new Drawable(blade);
 	body.push_back(fourth_blade);
+
+	Mesh* package_mesh = object3D::createCube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), 0.2);
+	meshes.push_back(package_mesh);
+
+	package = new Drawable(package_mesh);
 }
 
 Drone::~Drone() {}
@@ -159,6 +164,12 @@ void Drone::updateBody(float deltaTime) {
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
 	body[9]->setModelMatrix(modelMatrix);
 
+	// Update package
+	modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, position - glm::vec3(0, 0.3f, 0));
+	modelMatrix = glm::rotate(modelMatrix, rotationAngle, glm::vec3(0, 1.0f, 0));
+	package->setModelMatrix(modelMatrix);
+
 	// Update camera
 	glm::vec3 cameraPosition = glm::vec3(position.x + 4 * glm::sin(rotationAngle), position.y + 2, position.z + 4 * glm::cos(rotationAngle));
 	camera->Set(cameraPosition, position, glm::vec3(0, 1, 0));
@@ -178,4 +189,12 @@ void Drone::setPos(glm::vec3 pos) {
 
 Camera* Drone::getCamera() {
 	return camera;
+}
+
+void Drone::takePackage() {
+	body.push_back(package);
+}
+
+void Drone::deliverPackage() {
+	body.pop_back();
 }

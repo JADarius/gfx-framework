@@ -30,18 +30,18 @@ Lab4::~Lab4()
 
 std::vector<Tree*> genTrees() {
     std::vector<Tree*> treeList;
-    srand(time(NULL));
     for (int count = 0; count < 20; count++) {
         GENERATE:
         int x = rand() % 50;
         int z = rand() % 50;
         bool valid = true;
+		if (x < 5.0 || z < 5.0 || x > 45.0 || z > 45.0) {
+			valid = false;
+		}
         for (auto tree : treeList) {
             if (abs(tree->getPosX() - x) < 5.0 && abs(tree->getPosZ() - z) < 5.0) {
                 valid = false;
-            }
-            if (x < 5.0 || z < 5.0 || x > 45.0 || z > 45.0) {
-                valid = false;
+                break;
             }
         }
         if (valid) {
@@ -55,9 +55,59 @@ std::vector<Tree*> genTrees() {
     return treeList;
 }
 
+glm::vec3 Lab4::generatePackage() {
+GENERATEPACKAGE:
+    int x = rand() % 45;
+    int z = rand() % 45;
+    
+    if (x < 5.0 || z < 5.0) {
+        goto GENERATEPACKAGE;
+    }
+
+    bool valid = true;
+
+    for (auto tree : treeList) {
+		if (abs(tree->getPosX() - x) < 7.0 && abs(tree->getPosZ() - z) < 2.0) {
+			valid = false;
+			break;
+		}
+    }
+	if (valid) {
+		return glm::vec3(x, 0.8, z);
+	}
+	else {
+		goto GENERATEPACKAGE;
+	}
+}
+
+glm::vec3 Lab4::generatePad() {
+GENERATEPAD:
+    int x = rand() % 45;
+    int z = rand() % 45;
+
+    if (x < 5.0 || z < 5.0) {
+        goto GENERATEPAD;
+    }
+
+	bool valid = true;
+
+    for (auto tree : treeList) {
+		if (abs(tree->getPosX() - x) < 5.0 && abs(tree->getPosZ() - z) < 5.0) {
+			valid = false;
+			break;
+		}
+    }
+	if (valid) {
+		return glm::vec3(x, 1.0, z);
+	}
+	else {
+		goto GENERATEPAD;
+	}
+}
 
 void Lab4::Init()
 {
+    srand(time(NULL));
     // Create a shader program for drawing face polygon with the color of the normal
     {
         Shader *shader = new Shader("HwShader");
@@ -84,6 +134,19 @@ void Lab4::Init()
     treeList = genTrees();
 
     projectionMatrix = glm::perspective(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
+
+	package_mesh = object3D::createCube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), 0.2);
+    package = new Drawable(package_mesh);
+    modelMatrix = glm::mat4(1);
+    package_position = generatePackage();
+    modelMatrix = glm::translate(modelMatrix, package_position);
+    package->setModelMatrix(modelMatrix);
+    in_transit = false;
+
+    deliver_pad_mesh = object3D::createCylinder(glm::vec3(0, 0, 0), glm::vec3(0.5, 0, 1), 1.0, 0.1);
+    deliver_pad = new Drawable(deliver_pad_mesh);
+
+    delivered_packages = 0;
 }
 
 void Lab4::FrameStart()
@@ -96,9 +159,6 @@ void Lab4::FrameStart()
 void Lab4::RenderScene() {
     RenderSimpleMesh(field->getBody(), shaders["HwShader"], glm::mat4(1));
 
-    //modelMatrix = glm::mat4(1);
-    //modelMatrix = glm::translate(modelMatrix, drone->getPos());
-    //modelMatrix = glm::rotate(modelMatrix, rotationAngle + glm::radians(45.0f), glm::vec3(0, 1, 0));
     for (auto drawable : drone->getBody()) {
         RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
     }
@@ -107,9 +167,13 @@ void Lab4::RenderScene() {
 			RenderMesh(drawable->getMesh(), shaders["VertexNormal"], drawable->getModelMatrix());
 		}
     }
-    modelMatrix = glm::mat4(1);
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(10.0f, 10.0f, 10.0f));
-	RenderMesh(meshes["tree"], shaders["VertexNormal"], glm::mat4(1));
+
+    if (!in_transit) {
+        RenderMesh(package->getMesh(), shaders["VertexNormal"], package->getModelMatrix());
+    }
+    if (in_transit) {
+        RenderMesh(deliver_pad->getMesh(), shaders["VertexNormal"], deliver_pad->getModelMatrix());
+    }
 }
 
 void Lab4::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatrix)
@@ -185,6 +249,8 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
     if (window->KeyHold(GLFW_KEY_F)) drone->updatePosY(deltaTime * moveSpeed);
     if (window->KeyHold(GLFW_KEY_Q)) drone->rotate(deltaTime * rotationSpeed);
     if (window->KeyHold(GLFW_KEY_E)) drone->rotate(-deltaTime * rotationSpeed);
+
+    // Check for collision with trees
     for (auto tree : treeList) {
         for (auto hitbox : tree->getHitboxes()) {
             float x = max(hitbox->getXMin(), min(hitbox->getXMax(), drone->getPosX()));
@@ -198,6 +264,41 @@ void Lab4::OnInputUpdate(float deltaTime, int mods)
                 drone->setPos(previous_pos);
             }
         }
+    }
+
+    // Check for collision with the package
+    if (!in_transit &&
+        drone->getPosY() < 1.5 &&
+        drone->getPosX() < package_position.x + 0.2 &&
+        drone->getPosX() > package_position.x - 0.2 &&
+        drone->getPosZ() < package_position.z + 0.2 &&
+        drone->getPosZ() > package_position.z - 0.2
+        ) {
+        in_transit = true;
+        drone->takePackage();
+        pad_position = generatePad();
+        modelMatrix = glm::translate(glm::mat4(1), pad_position);
+        deliver_pad->setModelMatrix(modelMatrix);
+        std::cout << "Package taken!\n";
+        std::cout.flush();
+    }
+
+    if (in_transit &&
+        drone->getPosY() < 2.0 &&
+        drone->getPosX() < pad_position.x + 1.0 &&
+        drone->getPosX() > pad_position.x - 1.0 &&
+        drone->getPosZ() < pad_position.z + 1.0 &&
+        drone->getPosZ() > pad_position.z - 1.0
+        ) {
+        in_transit = false;
+        drone->deliverPackage();
+        package_position = generatePackage();
+        modelMatrix = glm::translate(glm::mat4(1), package_position);
+        package->setModelMatrix(modelMatrix);
+        delivered_packages++;
+        std::cout << "Package delivered!\n";
+        std::cout << "Number of packages delivered: " << delivered_packages << '\n';
+        std::cout.flush();
     }
 }
 

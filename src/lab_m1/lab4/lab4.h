@@ -5,6 +5,7 @@
 #include "Field.h"
 #include "Drone.h"
 #include "Tree.h"
+#include "object3D.h"
 
 namespace m1
 {
@@ -44,17 +45,25 @@ namespace m1
         void RenderScene();
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix);
+
+        glm::vec3 generatePackage();
+        glm::vec3 generatePad();
      protected:
         glm::mat4 modelMatrix;
         glm::mat4 projectionMatrix;
-        float translateX, translateY, translateZ;
-        float scaleX, scaleY, scaleZ;
-        float angularStepOX, rotationAngle, angularStepOZ;
+        glm::vec3 package_position;
+        glm::vec3 pad_position;
         GLenum polygonMode;
         ViewportArea miniViewportArea;
         Field* field;
         Drone* drone;
+        Drawable* package;
+        Mesh* package_mesh;
+        Drawable* deliver_pad;
+        Mesh* deliver_pad_mesh;
         std::vector<Tree*> treeList;
+        bool in_transit;
+        int delivered_packages;
     };
 }   // namespace m1
 
